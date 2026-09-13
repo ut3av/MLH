@@ -1,0 +1,11 @@
+{
+  "name": "diya-hospital-ams",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DIYA - Diagnostic Intelligence & Antibiotic Review Assistant",
+  "scripts": {
+    "build": "npm --prefix amr-guard/frontend run build",
+    "dev": "npm --prefix amr-guard/frontend run dev",
+    "preview": "npm --prefix amr-guard/frontend run preview"
+  }
+}
