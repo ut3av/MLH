@@ -192,52 +192,31 @@ function App() {
     setIsDocViewerOpen(true);
   };
 
-  // VIEW 0: Public Showcase Landing Page (Dribbble Cinematic Medical Style)
-  if (currentTab === 'landing') {
+  // If not authenticated and accessing private clinical routes, render login with Navbar
+  if (!isAuthenticated && currentTab !== 'landing') {
     return (
-      <ShowcaseLandingPage
-        onLaunchPortal={() => {
-          if (!isAuthenticated) {
-            setIsAuthenticated(true);
-            setUserSession({
-              hospital: 'St. Jude Memorial Hospital - Infectious Diseases & AMS',
-              email: 'dr.sharma@hospital.org',
-              role: 'Clinical Pharmacist'
-            });
-          }
-          setCurrentTab('dashboard');
-        }}
-        onSelectCase={(caseKey) => {
-          if (!isAuthenticated) {
-            setIsAuthenticated(true);
-            setUserSession({
-              hospital: 'St. Jude Memorial Hospital - Infectious Diseases & AMS',
-              email: 'dr.sharma@hospital.org',
-              role: 'Clinical Pharmacist'
-            });
-          }
-          handleSelectCase(caseKey);
-        }}
-        language={language}
-        setLanguage={setLanguage}
-      />
-    );
-  }
-
-  // If not authenticated, render hospital login screen
-  if (!isAuthenticated) {
-    return (
-      <LoginScreen 
-        onLogin={handleLogin} 
-        onBackToShowcase={() => setCurrentTab('landing')} 
-      />
+      <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans antialiased">
+        <Navbar
+          currentTab={currentTab}
+          setCurrentTab={setCurrentTab}
+          user={userSession}
+          onLogout={handleLogout}
+          language={language}
+          setLanguage={setLanguage}
+          onNewReviewClick={() => setCurrentTab('new_review')}
+        />
+        <LoginScreen 
+          onLogin={handleLogin} 
+          onBackToShowcase={() => setCurrentTab('landing')} 
+        />
+      </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans antialiased flex flex-col justify-between selection:bg-slate-200 selection:text-slate-900">
       <div>
-        {/* Hospital Clean Top Navigation Bar */}
+        {/* Upper Navigation Bar: Always present across all views */}
         <Navbar
           currentTab={currentTab}
           setCurrentTab={setCurrentTab}
@@ -248,7 +227,39 @@ function App() {
           onNewReviewClick={() => setCurrentTab('new_review')}
         />
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* VIEW 0: Public Showcase Landing Page (Strict Light Theme, Liquid Glassmorphism) */}
+        {currentTab === 'landing' && (
+          <ShowcaseLandingPage
+            onLaunchPortal={() => {
+              if (!isAuthenticated) {
+                setIsAuthenticated(true);
+                setUserSession({
+                  hospital: 'St. Jude Memorial Hospital - Infectious Diseases & AMS',
+                  email: 'dr.sharma@hospital.org',
+                  role: 'Clinical Pharmacist'
+                });
+              }
+              setCurrentTab('dashboard');
+            }}
+            onSelectCase={(caseKey) => {
+              if (!isAuthenticated) {
+                setIsAuthenticated(true);
+                setUserSession({
+                  hospital: 'St. Jude Memorial Hospital - Infectious Diseases & AMS',
+                  email: 'dr.sharma@hospital.org',
+                  role: 'Clinical Pharmacist'
+                });
+              }
+              handleSelectCase(caseKey);
+            }}
+            language={language}
+            setLanguage={setLanguage}
+          />
+        )}
+
+        {/* CLINICAL PORTAL VIEWS */}
+        {currentTab !== 'landing' && (
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           
           {/* VIEW 1: Main Dashboard */}
           {currentTab === 'dashboard' && (
@@ -352,19 +363,22 @@ function App() {
           )}
 
         </main>
+        )}
       </div>
 
       {/* Hospital Clinical Workflow Footer */}
-      <footer className="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 font-normal no-print">
-        <div className="max-w-6xl mx-auto px-4 space-y-1">
-          <p className="font-semibold text-slate-700">
-            DIYA: From patient data to evidence-guided antibiotic decisions.
-          </p>
-          <p className="text-[11px] text-slate-400">
-            AI prepares the decision. Healthcare professionals make it. Protected clinical workspace.
-          </p>
-        </div>
-      </footer>
+      {currentTab !== 'landing' && (
+        <footer className="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 font-normal no-print">
+          <div className="max-w-6xl mx-auto px-4 space-y-1">
+            <p className="font-semibold text-slate-700">
+              DIYA: From patient data to evidence-guided antibiotic decisions.
+            </p>
+            <p className="text-[11px] text-slate-400">
+              AI prepares the decision. Healthcare professionals make it. Protected clinical workspace.
+            </p>
+          </div>
+        </footer>
+      )}
 
       {/* Analysis Progress Modal */}
       <AnalysisProgressModal
