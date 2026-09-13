@@ -4,82 +4,46 @@ import MultiDocumentUpload from './components/MultiDocumentUpload';
 import PatientSummaryPanel from './components/PatientSummaryPanel';
 import ReviewFlagsDashboard from './components/ReviewFlagsDashboard';
 import ExportReviewCard from './components/ExportReviewCard';
+import RapidSummaryPanel from './components/RapidSummaryPanel';
 
 function App() {
   const [demoMode, setDemoMode] = useState(true);
   const [files, setFiles] = useState([]);
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisData, setAnalysisData] = useState(null);
+  
+  // State for interactive flags and questions
   const [flags, setFlags] = useState([]);
+  const [questions, setQuestions] = useState([]);
 
   const handleAnalyze = async () => {
     setAnalyzing(true);
     
-    // Simulate API call for Demo Mode
-    setTimeout(() => {
-      const mockResponse = {
-        patient_profile: {
-          age: "65",
-          sex: "Male",
-          infection_site: "Urinary Tract",
-          allergies: [
-            { category: "Allergy", name: "Amoxicillin", value: "Rash, severity unclear" }
-          ],
-          medications: [
-            { category: "Medication", name: "current_antibiotic", value: "Meropenem 1g IV TDS" }
-          ],
-          cultures: [
-            { category: "Microbiology", name: "Nitrofurantoin", value: "SUSCEPTIBLE" },
-            { category: "Microbiology", name: "Organism", value: "Escherichia coli" }
-          ],
-          labs: [
-            { category: "Lab", name: "Creatinine", value: "1.8 mg/dL (3 days ago)" }
-          ],
-          genetics: []
-        },
-        missing_information: [
-          { field: "treatment_duration", reason: "Planned duration not documented on med chart" },
-          { field: "allergy_severity", reason: "Only 'rash' documented, severity unknown" }
-        ],
-        conflicts: [],
-        review_flags: [
-          {
-            id: "f1",
-            type: "stewardship_review",
-            priority: "high",
-            rationale: "Broad-spectrum therapy currently prescribed, but narrower susceptible options documented.",
-            patient_evidence: "Current: Meropenem. Susceptible: Nitrofurantoin",
-            guideline_evidence: "De-escalation of empirical therapy should be performed as soon as culture results are available.",
-            clinician_question: "Can therapy be de-escalated to oral Nitrofurantoin based on these culture results?",
-            status: "open"
-          },
-          {
-            id: "f2",
-            type: "allergy_clarification",
-            priority: "medium",
-            rationale: "Allergy severity is unclear or documented vaguely.",
-            patient_evidence: "Allergy reported: Amoxicillin - Reaction: Rash",
-            guideline_evidence: "Many patients labeled as 'penicillin allergic' can safely receive beta-lactams.",
-            clinician_question: "Can the severity of the Amoxicillin allergy be confirmed?",
-            status: "open"
-          },
-          {
-             id: "f3",
-             type: "renal_review",
-             priority: "high",
-             rationale: "Renal result is absent or potentially outdated while receiving renally-cleared medication.",
-             patient_evidence: "Medication: Meropenem. Lab: Creatinine 1.8 mg/dL (3 days ago).",
-             guideline_evidence: "A serum creatinine or eGFR measurement within the last 48 hours is required.",
-             clinician_question: "Is there a more recent renal function test available?",
-             status: "open"
-          }
-        ]
-      };
-      
-      setAnalysisData(mockResponse);
-      setFlags(mockResponse.review_flags);
+    try {
+      const formData = new FormData();
+      files.forEach(f => formData.append('files', f));
+      formData.append('demo_mode', demoMode);
+
+      // We call the local backend. In real deployment this would be relative or configurable.
+      const response = await fetch('http://localhost:8000/api/analyze', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch analysis");
+      }
+
+      const data = await response.json();
+      setAnalysisData(data);
+      setFlags(data.review_flags || []);
+      setQuestions(data.clinician_review_questions || []);
+    } catch (error) {
+       console.error(error);
+       alert("Error analyzing files. Is the backend running?");
+    } finally {
       setAnalyzing(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -112,15 +76,23 @@ function App() {
            </div>
         ) : (
            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-3">
+                 <RapidSummaryPanel summary={analysisData.rapid_summary} />
+              </div>
               <div className="lg:col-span-1 space-y-6">
-                 <PatientSummaryPanel profile={analysisData.patient_profile} />
+                 <PatientSummaryPanel analysisData={analysisData} />
                  <button onClick={() => setAnalysisData(null)} className="w-full py-2 border border-slate-300 rounded text-slate-600 hover:bg-slate-100">
                     Start New Case
                  </button>
               </div>
               <div className="lg:col-span-2 space-y-6">
-                 <ReviewFlagsDashboard flags={flags} setFlags={setFlags} />
-                 <ExportReviewCard analysisData={{...analysisData, review_flags: flags}} />
+                 <ReviewFlagsDashboard 
+                    flags={flags} 
+                    questions={questions}
+                    setFlags={setFlags}
+                    setQuestions={setQuestions}
+                 />
+                 <ExportReviewCard analysisData={{...analysisData, review_flags: flags, clinician_review_questions: questions}} />
               </div>
            </div>
         )}

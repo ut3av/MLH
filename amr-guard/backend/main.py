@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Optional
+from typing import List
 import json
 import uuid
 from dotenv import load_dotenv
@@ -9,16 +9,14 @@ from dotenv import load_dotenv
 # Ensure dotenv is loaded
 load_dotenv()
 
-from google import genai
-from google.genai import types
-
 from schemas import (
-    AnalyzeResponse, PatientProfile, PatientFact, MissingInformation,
-    Conflict, ReviewFlag, KnowledgeChunk
+    AnalyzeResponse, RapidSummary, AntimicrobialAgent, MicrobiologyReport,
+    SusceptibilityResult, PatientFact, Conflict, ReviewFlag,
+    ClinicianReviewQuestion, GuidelineEvidence
 )
 from rag_knowledge_base import retrieve_guidelines
 
-app = FastAPI(title="Antigravity API")
+app = FastAPI(title="Antigravity API v2.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -27,59 +25,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-def run_deterministic_rules(profile: PatientProfile) -> List[ReviewFlag]:
-    flags = []
-    
-    # Check 1: Broad-spectrum therapy and Culture results
-    current_abx = next((m.value for m in profile.medications if m.name == "current_antibiotic"), None)
-    if current_abx and current_abx.lower() in ["meropenem", "piperacillin", "cefepime"]:
-        # Find if there's a susceptible narrower option
-        susceptible_options = [c.name for c in profile.cultures if c.value == "SUSCEPTIBLE"]
-        if susceptible_options:
-            flags.append(ReviewFlag(
-                id=str(uuid.uuid4()),
-                type="stewardship_review",
-                priority="high",
-                rationale="Broad-spectrum therapy currently prescribed, but narrower susceptible options documented in culture.",
-                patient_evidence=f"Current: {current_abx}. Susceptible: {', '.join(susceptible_options)}",
-                guideline_evidence="De-escalation of empirical antimicrobial therapy should be performed as soon as culture and susceptibility results are available.",
-                clinician_question="Can therapy be de-escalated to a narrower-spectrum agent based on these culture results?",
-                confidence="high"
-            ))
-            
-    # Check 2: Allergy clarification
-    for allergy in profile.allergies:
-        # Check if severity is missing or reaction is just 'rash'
-        if not allergy.value or "rash" in allergy.value.lower() or "unknown" in allergy.value.lower():
-             flags.append(ReviewFlag(
-                id=str(uuid.uuid4()),
-                type="allergy_clarification",
-                priority="medium",
-                rationale="Allergy severity is unclear or documented vaguely.",
-                patient_evidence=f"Allergy reported: {allergy.name} - Reaction: {allergy.value}",
-                guideline_evidence="Accurate allergy documentation is critical. Many patients labeled as 'penicillin allergic' can safely receive beta-lactams.",
-                clinician_question=f"Can the severity of the '{allergy.name}' allergy be confirmed before avoiding first-line therapies?",
-                confidence="high"
-            ))
-             
-    # Check 3: Renal function
-    renal_lab = next((l for l in profile.labs if "creatinine" in l.name.lower() or "egfr" in l.name.lower()), None)
-    if not renal_lab or not renal_lab.source_reference or "recent" not in renal_lab.source_reference.lower():
-         # In a real app we'd parse dates. For MVP we look for lack of recent date
-         if current_abx and current_abx.lower() in ["meropenem", "vancomycin"]:
-             flags.append(ReviewFlag(
-                id=str(uuid.uuid4()),
-                type="renal_review",
-                priority="high",
-                rationale="Renal result is absent or potentially outdated while receiving renally-cleared medication.",
-                patient_evidence=f"Medication: {current_abx}. Lab: {renal_lab.value if renal_lab else 'Not documented'}.",
-                guideline_evidence="A serum creatinine or eGFR measurement within the last 48 hours is required for all patients receiving nephrotoxic drugs.",
-                clinician_question="Is there a more recent renal function test available to confirm dosing is appropriate?",
-                confidence="medium"
-            ))
-
-    return flags
 
 @app.post("/api/analyze", response_model=AnalyzeResponse)
 async def analyze_case(
@@ -92,50 +37,155 @@ async def analyze_case(
     case_id = str(uuid.uuid4())
     
     if demo_mode:
-        # Demo Packet Logic
-        profile = PatientProfile(
-            age="65",
-            sex="Male",
+        # V2 Demo Packet (based on PRD Demonstration Scenario)
+        
+        rapid_summary = RapidSummary(
+            patient_alias=patientAlias,
+            clinical_setting="Inpatient / ICU",
             infection_site="Urinary Tract",
-            allergies=[
-                PatientFact(category="Allergy", name="Amoxicillin", value="Rash, severity unclear", source_reference="allergy_history.pdf", evidence_text="Allergic to Amox - rash", confidence="high")
-            ],
-            medications=[
-                PatientFact(category="Medication", name="current_antibiotic", value="Meropenem", source_reference="med_chart.pdf, pg 1", evidence_text="Inj Meropenem 1g IV TDS", confidence="high")
-            ],
-            cultures=[
-                PatientFact(category="Microbiology", name="Nitrofurantoin", value="SUSCEPTIBLE", source_reference="culture_report.pdf", evidence_text="Nitrofurantoin: S", confidence="high"),
-                PatientFact(category="Microbiology", name="Organism", value="Escherichia coli", source_reference="culture_report.pdf", evidence_text="Culture: E. coli >10^5", confidence="high")
-            ],
-            labs=[
-                PatientFact(category="Lab", name="Creatinine", value="1.8 mg/dL (Outdated)", source_reference="lab_report.pdf", evidence_text="Creatinine 1.8 (3 days ago)", confidence="high")
-            ],
-            genetics=[]
+            organism="Escherichia coli",
+            current_antimicrobial="Meropenem",
+            review_priority="high",
+            one_sentence_summary="Patient is on broad-spectrum Meropenem for an E. coli UTI with missing duration and unclear allergy history.",
+            data_completeness="partial"
         )
         
-        missing = [
-            MissingInformation(field="treatment_duration", reason="Planned duration not documented on med chart"),
-            MissingInformation(field="allergy_severity", reason="Only 'rash' documented, severity unknown")
+        current_antimicrobials = [
+            AntimicrobialAgent(
+                original_document_text="Inj Meropenem 1g IV TDS",
+                generic_name="Meropenem",
+                normalized_name="Meropenem",
+                antimicrobial_class="Carbapenem",
+                route="IV",
+                documented_dose="1g",
+                frequency="TDS",
+                start_date="2026-09-10",
+                intended_duration=None,
+                indication_if_documented="Sepsis",
+                current_or_previous_status="Current",
+                source_reference="medication_chart.pdf, pg 1",
+                evidence_text="Inj Meropenem 1g IV TDS",
+                extraction_confidence="high"
+            )
         ]
         
-        conflicts = []
+        microbiology = [
+            MicrobiologyReport(
+                specimen_type="Urine",
+                specimen_collection_date="2026-09-11",
+                report_date="2026-09-13",
+                organism="Escherichia coli",
+                organism_count_or_burden=">10^5 CFU/mL",
+                susceptibility_results=[
+                    SusceptibilityResult(antibiotic_original_text="Nitrofurantoin", interpretation="S"),
+                    SusceptibilityResult(antibiotic_original_text="Meropenem", interpretation="S"),
+                    SusceptibilityResult(antibiotic_original_text="Ciprofloxacin", interpretation="R")
+                ],
+                source_reference="culture_report.pdf",
+                extraction_confidence="high"
+            )
+        ]
         
-        flags = run_deterministic_rules(profile)
+        allergies = [
+            PatientFact(
+                field="Allergy: Amoxicillin",
+                value="Rash",
+                status="Requires confirmation",
+                message="Severity is unclear.",
+                source_reference="allergy_history.pdf",
+                evidence_text="Allergic to Amox - rash"
+            )
+        ]
         
-        keywords = ["de-escalation", "allergy", "renal"]
-        sources = retrieve_guidelines(keywords)
+        renal_hepatic_data = [
+            PatientFact(
+                field="Creatinine",
+                value="1.8 mg/dL",
+                status="Information unavailable",
+                message="Lab is 5 days old. Outdated.",
+                source_reference="lab_report.pdf",
+                evidence_text="Creatinine 1.8 (5 days ago)"
+            )
+        ]
+        
+        missing_info = [
+            PatientFact(field="treatment_duration", status="Not documented", message="Planned duration not documented on med chart")
+        ]
+        
+        # We simulate fetching RAG guidelines
+        rag_results = retrieve_guidelines(["de-escalation", "allergy", "renal"])
+        guideline_evidence = [
+            GuidelineEvidence(
+                guideline_title=chunk.source_title,
+                issuing_organization=chunk.organization,
+                publication_or_update_date=chunk.version,
+                section=chunk.section,
+                retrieved_passage=chunk.text,
+                document_reference=chunk.id,
+                scope="General",
+                applicability_note="Standard guidance"
+            ) for chunk in rag_results
+        ]
+        
+        review_flags = [
+            ReviewFlag(
+                flag_id="f1",
+                flag_type="stewardship_review",
+                priority="high",
+                title="Broad-spectrum therapy requires review",
+                description="Patient is on Meropenem, but narrower options (Nitrofurantoin) are susceptible.",
+                why_it_matters="Reduces resistance pressure and collateral damage.",
+                patient_evidence=["Current: Meropenem", "Culture: E. coli susceptible to Nitrofurantoin"],
+                guideline_evidence_ids=["icmr_ams_001"],
+                clinician_question="Can therapy be de-escalated to a narrower-spectrum agent based on these culture results?",
+                recommended_next_review_step="Review culture results with treating team.",
+                confidence="high"
+            ),
+            ReviewFlag(
+                flag_id="f2",
+                flag_type="allergy_clarification",
+                priority="medium",
+                title="Allergy history is incomplete",
+                description="Amoxicillin allergy is listed as 'rash' without severity.",
+                why_it_matters="May inappropriately exclude first-line beta-lactam therapies.",
+                patient_evidence=["Allergy: Amoxicillin - Rash"],
+                guideline_evidence_ids=["icmr_ams_002"],
+                clinician_question="Can the severity of the Amoxicillin allergy be confirmed?",
+                recommended_next_review_step="Interview patient or check historical records.",
+                confidence="high"
+            )
+        ]
+        
+        questions = [
+            ClinicianReviewQuestion(
+                question_id="q1",
+                priority="high",
+                question="Can therapy be de-escalated to a narrower-spectrum agent based on these culture results?",
+                reason="Culture shows susceptibility to Nitrofurantoin.",
+                supporting_evidence=["Culture report: E. coli (S) to Nitrofurantoin"]
+            ),
+            ClinicianReviewQuestion(
+                question_id="q2",
+                priority="medium",
+                question="Can the severity of the Amoxicillin allergy be confirmed?",
+                reason="Only 'rash' is documented.",
+                supporting_evidence=["Allergy record"]
+            )
+        ]
         
         return AnalyzeResponse(
-            case_id=case_id,
-            patient_profile=profile,
-            missing_information=missing,
-            conflicts=conflicts,
-            review_flags=flags,
-            retrieved_sources=sources,
-            disclaimer="For clinician/pharmacist review only."
+            rapid_summary=rapid_summary,
+            current_antimicrobials=current_antimicrobials,
+            microbiology=microbiology,
+            allergies=allergies,
+            renal_hepatic_data=renal_hepatic_data,
+            missing_information=missing_info,
+            conflicts=[],
+            review_flags=review_flags,
+            retrieved_guideline_evidence=guideline_evidence,
+            clinician_review_questions=questions
         )
 
-    # Real Gemini integration would go here. For MVP purposes, if not demo mode, we still return a response or error.
     raise HTTPException(status_code=501, detail="Live Gemini extraction is not fully implemented in this MVP. Please use Demo Mode.")
 
 if __name__ == "__main__":
