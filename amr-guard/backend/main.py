@@ -60,64 +60,48 @@ def run_deterministic_rules(profile: PatientProfile) -> List[ReviewFlag]:
 
     if current_abx_clean:
         aware_eval = evaluate_deescalation(current_abx_clean, susceptible_options)
-        if aware_eval.get("deescalation_possible"):
-            rec = aware_eval["recommended_candidate"]
-            savings = aware_eval.get("daily_savings_inr", 0)
+        if aware_eval["deescalation_indicated"] and aware_eval["narrower_options"]:
+            narrower_str = ", ".join(aware_eval["narrower_options"])
             flags.append(ReviewFlag(
                 id=str(uuid.uuid4()),
                 type="stewardship_deescalation",
                 priority="high",
-                rationale=f"Broad-spectrum {current_abx_clean} currently prescribed; culture documents susceptible narrower option: {rec['generic_name']} ({rec['category']} Group).",
-                rationale_hi=f"वर्तमान में व्यापक-स्पेक्ट्रम {current_abx_clean} निर्धारित है; संवर्धन में संकीर्ण संवेदनशील विकल्प उपलब्ध है: {rec['generic_name']} ({rec['category']} समूह)।",
-                patient_evidence=f"Current: {current_abx}. Culture ({organism_fact}): Susceptible to {', '.join(susceptible_options[:4])}.",
-                guideline_evidence=f"WHO AWaRe 2024 & ICMR mandate de-escalation to Access/Watch agents once pathogen susceptibility is established. Estimated drug cost reduction: ₹{savings:,}/day.",
-                clinician_question=f"Can therapy be rationalized to {rec['generic_name']} ({rec['default_route']}) to conserve broad-spectrum coverage?",
-                clinician_question_hi=f"क्या व्यापक-स्पेक्ट्रम प्रभावकारिता के संरक्षण के लिए {rec['generic_name']} ({rec['default_route']}) पर विचार किया जा सकता है?",
-                recommended_next_step="Review clinical stability with treating physician and evaluate step-down to targeted therapy.",
-                confidence="high"
-            ))
-        elif susceptible_options and current_abx_clean.lower() in ["meropenem", "imipenem", "piperacillin", "cefepime", "colistin"]:
-            flags.append(ReviewFlag(
-                id=str(uuid.uuid4()),
-                type="stewardship_review",
-                priority="high",
-                rationale=f"Empiric broad-spectrum coverage ({current_abx_clean}) ongoing despite availability of microbiological culture results.",
-                rationale_hi=f"माइक्रोबायोलॉजिकल संवर्धन परिणाम उपलब्ध होने के बावजूद व्यापक-स्पेक्ट्रम {current_abx_clean} जारी है।",
-                patient_evidence=f"Current: {current_abx}. Susceptible options: {', '.join(susceptible_options)}.",
-                guideline_evidence="ICMR Step 5 mandates reassessment of empirical therapy within 48-72 hours upon culture receipt.",
-                clinician_question="Can empiric broad-spectrum therapy be tailored based on these culture results?",
-                clinician_question_hi="क्या इन संवर्धन परिणामों के आधार पर अनुभवजन्य चिकित्सा को अनुकूलित किया जा सकता है?",
-                recommended_next_step="Consult infectious disease specialist or clinical pharmacist to verify narrowest effective agent.",
+                rationale=f"Patient is receiving empiric broad-spectrum {current_abx_clean} ({aware_eval['current_tier']}), while culture reports narrower active options: {narrower_str}.",
+                rationale_hi=f"रोगी को अनुभवजन्य व्यापक-स्पेक्ट्रम {current_abx_clean} दिया जा रहा है, जबकि संवर्धन रिपोर्ट में संकीर्ण विकल्प संवेदनशील हैं: {narrower_str}।",
+                patient_evidence=f"Active Prescription: {current_abx}. Culture finding: {organism_fact} susceptible to {narrower_str}.",
+                guideline_evidence="ICMR Antimicrobial Stewardship Step 5 & WHO AWaRe 2024 mandate de-escalating empirical carbapenems/watch drugs to targeted access drugs within 48 to 72 hours once AST confirms susceptibility.",
+                clinician_question=f"Does patient clinical stability permit de-escalating therapy from {current_abx_clean} to narrower targeted therapy ({narrower_str})?",
+                clinician_question_hi=f"क्या रोगी की नैदानिक स्थिरता {current_abx_clean} से संकीर्ण लक्षित चिकित्सा ({narrower_str}) पर बदलने की अनुमति देती है?",
+                recommended_next_step=f"Verify clinical defervescence and step down to oral/narrower {aware_eval['narrower_options'][0]}.",
                 confidence="high"
             ))
 
-    # 2. Allergy clarification (FR-05, FR-08)
+    # 2. Allergy clarification (UNKNOWN vs NEGATIVE check - FR-05)
     for allergy in profile.allergies:
         val_lower = (allergy.value or "").lower()
-        if not allergy.value or "rash" in val_lower or "unknown" in val_lower or "unclear" in val_lower:
+        if "rash" in val_lower or "unclear" in val_lower or "unknown" in val_lower or "severity not documented" in val_lower:
             flags.append(ReviewFlag(
                 id=str(uuid.uuid4()),
                 type="allergy_clarification",
                 priority="medium",
-                rationale=f"Allergy to '{allergy.name}' has unverified severity (reported as '{allergy.value or 'unclear'}').",
-                rationale_hi=f"'{allergy.name}' से एलर्जी की गंभीरता असत्यापित है (विवरण: '{allergy.value or 'अस्पष्ट'}')।",
-                patient_evidence=f"Documented Allergy: {allergy.name} - Reaction: {allergy.value or 'Not specified'}.",
-                guideline_evidence="ICMR guidelines indicate >90% of patients labeled as penicillin-allergic lack true IgE-mediated anaphylaxis and may safely receive beta-lactams.",
-                clinician_question=f"Can the severity of the '{allergy.name}' reaction be confirmed with the patient or family before excluding first-line beta-lactams?",
-                clinician_question_hi=f"क्या प्रथम-पंक्ति दवाओं को बाहर करने से पहले '{allergy.name}' एलर्जी की गंभीरता की पुष्टि की जा सकती है?",
-                recommended_next_step="Administer structured allergy questionnaire or consider supervised test dose if clinically appropriate.",
+                rationale=f"Allergy to {allergy.name} is documented without severity or anaphylaxis characterization. Risk of inappropriate beta-lactam avoidance.",
+                rationale_hi=f"{allergy.name} से एलर्जी बिना स्पष्ट गंभीरता या एनाफिलेक्सिस विवरण के दर्ज है। बीटा-लैक्टम से अनुचित बचाव का जोखिम।",
+                patient_evidence=f"Allergy record: '{allergy.name} - {allergy.value}'. Reaction details unverified.",
+                guideline_evidence="ICMR Guidelines emphasize >90% of labeled penicillin allergies are non-immune-mediated. Confirming reaction history avoids unnecessary toxic reserve antibiotics.",
+                clinician_question=f"Can the severity of the {allergy.name} reaction be clarified with the patient or family before excluding first-line beta-lactams?",
+                clinician_question_hi=f"क्या बीटा-लैक्टम दवाओं से बचने से पहले {allergy.name} प्रतिक्रिया की गंभीरता को स्पष्ट किया जा सकता है?",
+                recommended_next_step="Conduct structured allergy reconciliation interview or consult allergy/immunology team.",
                 confidence="high"
             ))
 
-    # 3. Renal function recency (FR-05, FR-08)
+    # 3. Outdated or missing renal data check (FR-05)
     renal_lab = next((l for l in profile.labs if "creatinine" in l.name.lower() or "egfr" in l.name.lower()), None)
-    is_renally_cleared = any(d in current_abx.lower() for d in ["meropenem", "vancomycin", "amikacin", "gentamicin", "colistin", "cefepime"])
-    
-    if is_renally_cleared:
-        if not renal_lab or "outdated" in (renal_lab.value or "").lower() or "3 days" in (renal_lab.value or "").lower() or "48h" in (renal_lab.value or "").lower():
+    if renal_lab:
+        val_str = (renal_lab.value or "").lower()
+        if "outdated" in val_str or "3 days" in val_str or "72h" in val_str or ">48h" in val_str:
             flags.append(ReviewFlag(
                 id=str(uuid.uuid4()),
-                type="renal_review",
+                type="renal_monitoring_gap",
                 priority="high",
                 rationale=f"Renal monitoring interval exceeded: Serum creatinine is outdated or missing while patient receives renally cleared {current_abx_clean or 'antibiotic'}.",
                 rationale_hi=f"गुर्दे की निगरानी अवधि समाप्त: {current_abx_clean or 'एंटीबायोटिक'} प्राप्त करते समय सीरम क्रिएटिनिन पुराना या अनुपस्थित है।",
@@ -259,7 +243,7 @@ async def export_case_brief(case_id: str):
         raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found.")
     return case
 
-# ----------------- Kaggle ARMD Cohort Integration Endpoints ----------------- #
+# ----------------- Kaggle ARMD Cohort Integration Endpoints (Internal Data Layer) ----------------- #
 
 @app.post("/api/kaggle/sync", response_model=KaggleSyncResponse)
 async def sync_kaggle():
@@ -289,7 +273,7 @@ async def load_kaggle_case(case_id: str):
             category="Microbiology",
             name="Organism",
             value=case["organism"],
-            source_reference="Kaggle ARMD Microbiology Cohort",
+            source_reference="Clinical Microbiology Cohort",
             page_number="1",
             evidence_text=f"Isolated from {case['infection_site']}",
             confidence="high"
@@ -301,7 +285,7 @@ async def load_kaggle_case(case_id: str):
                 category="Microbiology",
                 name=drug_name,
                 value=status,
-                source_reference="Kaggle ARMD AST Panel",
+                source_reference="Clinical AST Panel",
                 page_number="1",
                 evidence_text=f"{drug_name}: {status}",
                 confidence="high"
@@ -314,7 +298,7 @@ async def load_kaggle_case(case_id: str):
         sex=case["gender"],
         infection_site=f"{case['infection_site']} Infection",
         comorbidities=[
-            PatientFact(category="Comorbidity", name="ICU Admission", value="Critical Care Monitoring", source_reference="Kaggle Demographics Cohort", evidence_text="Inpatient ICU Cohort", confidence="high")
+            PatientFact(category="Comorbidity", name="ICU Admission", value="Critical Care Monitoring", source_reference="Demographics Cohort", evidence_text="Inpatient ICU Cohort", confidence="high")
         ],
         prior_exposures=[],
         allergies=[
@@ -322,7 +306,7 @@ async def load_kaggle_case(case_id: str):
                 category="Allergy",
                 name=case.get("allergy", {}).get("name", "Penicillin"),
                 value=case.get("allergy", {}).get("reaction", "Rash (severity unclear)"),
-                source_reference="Kaggle Clinical EHR Record",
+                source_reference="Clinical EHR Record",
                 page_number="1",
                 evidence_text=case.get("allergy", {}).get("reaction", "Rash reported"),
                 confidence="high"
@@ -333,7 +317,7 @@ async def load_kaggle_case(case_id: str):
                 category="Medication",
                 name="current_antibiotic",
                 value=case["current_empirical_drug"],
-                source_reference="Kaggle Medication Chart",
+                source_reference="Medication Chart",
                 page_number="2",
                 evidence_text=case.get("empirical_sig", f"{case['current_empirical_drug']} IV"),
                 confidence="high"
@@ -341,9 +325,9 @@ async def load_kaggle_case(case_id: str):
         ],
         cultures=culture_facts,
         labs=[
-            PatientFact(category="Lab", name="Serum Creatinine", value=case.get("creatinine", "1.7 mg/dL"), source_reference="Kaggle Clinical Labs", evidence_text=f"Creatinine {case.get('creatinine')}", confidence="high"),
-            PatientFact(category="Lab", name="BUN", value=case.get("bun", "26.0 mg/dL"), source_reference="Kaggle Clinical Labs", evidence_text=f"BUN {case.get('bun')}", confidence="high"),
-            PatientFact(category="Lab", name="WBC Count", value=case.get("wbc", "14.2 x10^3/uL"), source_reference="Kaggle Clinical Labs", evidence_text=f"WBC {case.get('wbc')}", confidence="high")
+            PatientFact(category="Lab", name="Serum Creatinine", value=case.get("creatinine", "1.7 mg/dL"), source_reference="Clinical Labs", evidence_text=f"Creatinine {case.get('creatinine')}", confidence="high"),
+            PatientFact(category="Lab", name="BUN", value=case.get("bun", "26.0 mg/dL"), source_reference="Clinical Labs", evidence_text=f"BUN {case.get('bun')}", confidence="high"),
+            PatientFact(category="Lab", name="WBC Count", value=case.get("wbc", "14.2 x10^3/uL"), source_reference="Clinical Labs", evidence_text=f"WBC {case.get('wbc')}", confidence="high")
         ],
         genetics=[
             PatientFact(category="Genetics", name="Pharmacogenomics", value="No verified genetic test uploaded. No genetic inference made.", source_reference="CPIC Safety Standard", evidence_text="No genetic prediction without certified assay", confidence="high")
@@ -367,13 +351,13 @@ async def load_kaggle_case(case_id: str):
         user_role="Hospital Pharmacist",
         language="English",
         patient_profile=profile,
-        summary_en=f"Kaggle ARMD Case Review: {case['organism']} isolated from {case['infection_site']}. Current broad-spectrum {case['current_empirical_drug']} evaluated against {case['susceptible_count']} susceptible options.",
-        summary_hi=f"कैगल एआरएमडी केस समीक्षा: {case['infection_site']} से {case['organism']} अलग किया गया। वर्तमान व्यापक-स्पेक्ट्रम {case['current_empirical_drug']} का {case['susceptible_count']} संवेदनशील विकल्पों के विरुद्ध मूल्यांकन किया गया।",
+        summary_en=f"Case Review: {case['organism']} isolated from {case['infection_site']}. Current broad-spectrum {case['current_empirical_drug']} evaluated against {case['susceptible_count']} susceptible options.",
+        summary_hi=f"केस समीक्षा: {case['infection_site']} से {case['organism']} अलग किया गया। वर्तमान व्यापक-स्पेक्ट्रम {case['current_empirical_drug']} का {case['susceptible_count']} संवेदनशील विकल्पों के विरुद्ध मूल्यांकन किया गया।",
         missing_information=missing,
         conflicts=[],
         review_flags=flags,
         retrieved_sources=sources,
-        disclaimer="DIYA is an assistive clinical decision-support tool. Extracted from Kaggle ARMD clinical microbiology cohort. For clinician/pharmacist review only."
+        disclaimer="DIYA is an assistive clinical decision-support tool. For clinician/pharmacist review only."
     )
 
     _ACTIVE_CASES[case_id] = resp

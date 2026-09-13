@@ -43,7 +43,7 @@ export default function Navbar({
           <nav className="hidden md:flex items-center space-x-1 text-xs font-semibold text-slate-600">
             <button
               onClick={() => setCurrentTab('dashboard')}
-              className={`px-3 py-2 rounded-lg transition-colors ${
+              className={`px-3 py-2 rounded-lg transition-colors cursor-pointer ${
                 currentTab === 'dashboard' || currentTab === 'review' 
                   ? 'text-emerald-700 bg-emerald-50' 
                   : 'hover:text-slate-900 hover:bg-slate-50'
@@ -53,7 +53,7 @@ export default function Navbar({
             </button>
             <button
               onClick={() => setCurrentTab('patients')}
-              className={`px-3 py-2 rounded-lg transition-colors ${
+              className={`px-3 py-2 rounded-lg transition-colors cursor-pointer ${
                 currentTab === 'patients' 
                   ? 'text-emerald-700 bg-emerald-50' 
                   : 'hover:text-slate-900 hover:bg-slate-50'
@@ -63,7 +63,7 @@ export default function Navbar({
             </button>
             <button
               onClick={() => setCurrentTab('guidelines')}
-              className={`px-3 py-2 rounded-lg transition-colors ${
+              className={`px-3 py-2 rounded-lg transition-colors cursor-pointer ${
                 currentTab === 'guidelines' 
                   ? 'text-emerald-700 bg-emerald-50' 
                   : 'hover:text-slate-900 hover:bg-slate-50'
@@ -73,7 +73,7 @@ export default function Navbar({
             </button>
             <button
               onClick={() => setCurrentTab('activity')}
-              className={`px-3 py-2 rounded-lg transition-colors ${
+              className={`px-3 py-2 rounded-lg transition-colors cursor-pointer ${
                 currentTab === 'activity' 
                   ? 'text-emerald-700 bg-emerald-50' 
                   : 'hover:text-slate-900 hover:bg-slate-50'
@@ -90,7 +90,7 @@ export default function Navbar({
             <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-semibold">
               <button
                 onClick={() => setLanguage('English')}
-                className={`px-2 py-1 rounded-md transition-all ${
+                className={`px-2 py-1 rounded-md transition-all cursor-pointer ${
                   language === 'English'
                     ? 'bg-white text-slate-900 shadow-2xs'
                     : 'text-slate-500 hover:text-slate-900'
@@ -100,7 +100,7 @@ export default function Navbar({
               </button>
               <button
                 onClick={() => setLanguage('Hindi')}
-                className={`px-2 py-1 rounded-md transition-all ${
+                className={`px-2 py-1 rounded-md transition-all cursor-pointer ${
                   language === 'Hindi'
                     ? 'bg-white text-slate-900 shadow-2xs'
                     : 'text-slate-500 hover:text-slate-900'
@@ -124,7 +124,7 @@ export default function Navbar({
             {onLogout && (
               <button
                 onClick={onLogout}
-                className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
                 title="Sign out"
               >
                 <LogOut className="w-4 h-4" />

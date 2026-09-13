@@ -1,35 +1,25 @@
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
-from typing import List, Optional
 
 class PatientFact(BaseModel):
-    category: str
+    category: Optional[str] = None
     name: str
-    value: Optional[str] = None
+    value: str
     source_reference: Optional[str] = None
     page_number: Optional[str] = None
     evidence_text: Optional[str] = None
     confidence: Optional[str] = "high"
 
-class PatientProfile(BaseModel):
-    patient_alias: Optional[str] = "Patient Case"
-    age: Optional[str] = None
-    sex: Optional[str] = None
-    infection_site: Optional[str] = None
-    comorbidities: List[PatientFact] = []
-    prior_exposures: List[PatientFact] = []
-    allergies: List[PatientFact] = []
-    medications: List[PatientFact] = []
-    cultures: List[PatientFact] = []
-    labs: List[PatientFact] = []
-    genetics: List[PatientFact] = []
-
 class MissingInformation(BaseModel):
     field: str
     reason: str
+    impact: Optional[str] = None
 
 class Conflict(BaseModel):
-    description: str
-    sources: List[str]
+    docA: Optional[Dict[str, str]] = None
+    docB: Optional[Dict[str, str]] = None
+    details: str
+    conflict_type: Optional[str] = "discrepancy"
 
 class KnowledgeChunk(BaseModel):
     id: str
@@ -44,7 +34,7 @@ class KnowledgeChunk(BaseModel):
 class ReviewFlag(BaseModel):
     id: str
     type: str
-    priority: str  # high, medium, low
+    priority: str  # high, medium, attention, review
     rationale: str
     rationale_hi: Optional[str] = None
     patient_evidence: str
@@ -55,6 +45,20 @@ class ReviewFlag(BaseModel):
     status: str = "open"  # open, reviewed, escalated, needs_info, not_applicable
     confidence: str = "high"
 
+class PatientProfile(BaseModel):
+    patient_alias: Optional[str] = "Patient Case"
+    age: Optional[str] = "62"
+    sex: Optional[str] = "Male"
+    ward: Optional[str] = "Medicine / ICU Bed 08"
+    infection_site: Optional[str] = "Urinary Tract"
+    comorbidities: List[PatientFact] = []
+    prior_exposures: List[PatientFact] = []
+    allergies: List[PatientFact] = []
+    medications: List[PatientFact] = []
+    cultures: List[PatientFact] = []
+    labs: List[PatientFact] = []
+    genetics: List[PatientFact] = []
+
 class AnalyzeResponse(BaseModel):
     case_id: str
     patient_alias: Optional[str] = "Patient Case"
@@ -63,10 +67,10 @@ class AnalyzeResponse(BaseModel):
     patient_profile: PatientProfile
     summary_en: Optional[str] = None
     summary_hi: Optional[str] = None
-    missing_information: List[MissingInformation]
-    conflicts: List[Conflict]
-    review_flags: List[ReviewFlag]
-    retrieved_sources: List[KnowledgeChunk]
+    missing_information: List[MissingInformation] = []
+    conflicts: List[Conflict] = []
+    review_flags: List[ReviewFlag] = []
+    retrieved_sources: List[KnowledgeChunk] = []
     disclaimer: str = "DIYA is an assistive clinical decision-support tool. It does not diagnose, prescribe, change medication, or replace qualified clinician judgment. All flags must be evaluated by a healthcare professional."
 
 class CaseCreateRequest(BaseModel):

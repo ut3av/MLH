@@ -317,8 +317,8 @@ export default function NewReviewScreen({
                 </div>
 
                 <div className="flex items-center space-x-3">
-                  <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50/80 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                    ✓ {file.status}
+                  <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50/80 px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center space-x-1">
+                    <span>{file.status}</span>
                   </span>
                   <button
                     type="button"

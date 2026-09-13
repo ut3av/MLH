@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { ChevronRight, ArrowUpRight, Check, AlertCircle } from 'lucide-react';
+import { ChevronRight, ShieldAlert } from 'lucide-react';
 import FlagDetailSheet from './FlagDetailSheet';
 
 const API_BASE = 'http://localhost:8000';
 
 export default function ReviewFlagsDashboard({ 
-  flags, 
+  flags = [], 
   setFlags, 
   language = 'English',
   onOpenDocumentViewer 
@@ -27,8 +27,10 @@ export default function ReviewFlagsDashboard({
 
   const handleStatusChange = async (id, status) => {
     // Optimistic update
-    setFlags(flags.map(f => f.id === id ? { ...f, status } : f));
-    if (selectedFlag && selectedFlag.id === id) {
+    if (setFlags) {
+      setFlags(flags.map(f => (f.id === id || f.flag_id === id) ? { ...f, status } : f));
+    }
+    if (selectedFlag && (selectedFlag.id === id || selectedFlag.flag_id === id)) {
       setSelectedFlag(prev => ({ ...prev, status }));
     }
 
@@ -47,32 +49,32 @@ export default function ReviewFlagsDashboard({
     <div className="space-y-6 text-left">
       {/* Section Header */}
       <div className="space-y-1">
-        <h2 className="text-2xl sm:text-3xl font-light text-white tracking-tight">
-          What deserves attention
+        <h2 className="text-xl font-semibold text-slate-900 flex items-center space-x-2">
+          <ShieldAlert className="w-5 h-5 text-amber-600" />
+          <span>Clinical Review Flags</span>
         </h2>
-        <p className="text-xs text-sage-300/80 font-light max-w-xl">
-          DIYA identified information that may require pharmacist or clinician review.
+        <p className="text-xs text-slate-500 font-normal">
+          DIYA identified information that may require pharmacist or clinician review before therapy continuation.
         </p>
       </div>
 
-      {/* Vertical List with Generous Whitespace */}
-      <div className="space-y-4 pt-2">
+      {/* Vertical List */}
+      <div className="space-y-3 pt-1">
         {flags.map((flag, idx) => {
+          const flagId = flag.id || flag.flag_id || idx;
           const num = String(idx + 1).padStart(2, '0');
           const isHigh = flag.priority === 'high';
           const isAttention = flag.type?.includes('gap') || flag.type?.includes('allergy') || flag.type?.includes('clarification');
-          const isReviewed = flag.status === 'reviewed';
 
           const badgeLabel = isHigh ? 'HIGH' : isAttention ? 'ATTENTION' : 'REVIEW';
           const badgeStyle = isHigh 
-            ? 'text-rose-400 border-rose-500/30 bg-rose-950/40'
+            ? 'text-rose-700 border-rose-300 bg-rose-50'
             : isAttention 
-              ? 'text-amber-400 border-amber-500/30 bg-amber-950/40'
-              : 'text-emerald-400 border-emerald-500/30 bg-emerald-950/40';
+              ? 'text-amber-700 border-amber-300 bg-amber-50'
+              : 'text-emerald-700 border-emerald-300 bg-emerald-50';
 
-          const rationaleText = (isHindi && flag.rationale_hi) ? flag.rationale_hi : flag.rationale;
+          const rationaleText = (isHindi && flag.rationale_hi) ? flag.rationale_hi : (flag.rationale || flag.description);
 
-          // Simplify title display for the Apple aesthetic
           const rawTitle = flag.title || flag.rationale || 'Stewardship Review';
           const cleanTitle = String(rawTitle)
             .replace(' requires review', '')
@@ -87,47 +89,47 @@ export default function ReviewFlagsDashboard({
 
           return (
             <div
-              key={flag.id || idx}
+              key={flagId}
               onClick={() => handleOpenFlag(flag)}
-              className="rounded-3xl glass-surface p-7 sm:p-8 border border-white/8 hover:border-emerald-500/30 transition-all duration-300 cursor-pointer group shadow-glass relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
+              className="rounded-xl bg-white p-5 border border-slate-200 hover:border-emerald-300 hover:shadow-xs transition-all cursor-pointer group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
             >
               {/* Left Column: Number + Content */}
-              <div className="flex items-start space-x-6">
-                <span className="text-2xl font-light font-mono text-sage-500 group-hover:text-emerald-400/80 transition-colors shrink-0">
+              <div className="flex items-start space-x-4">
+                <span className="text-lg font-bold font-mono text-slate-400 group-hover:text-emerald-600 transition-colors shrink-0">
                   {num}
                 </span>
 
-                <div className="space-y-1.5 max-w-xl">
+                <div className="space-y-1 max-w-xl">
                   <div className="flex items-center space-x-3">
-                    <h3 className="text-base sm:text-lg font-normal text-white group-hover:text-emerald-200 transition-colors">
+                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-emerald-800 transition-colors">
                       {cleanTitle}
                     </h3>
                   </div>
 
-                  <p className="text-xs font-mono uppercase tracking-wider text-sage-400/90">
+                  <p className="text-[11px] font-mono uppercase tracking-wider text-slate-500">
                     {statusSubtitle}
                   </p>
 
-                  <p className="text-xs text-sage-300/80 font-light leading-relaxed pt-1">
+                  <p className="text-xs text-slate-600 font-normal leading-relaxed pt-0.5">
                     {rationaleText}
                   </p>
                 </div>
               </div>
 
               {/* Right Column: Priority Badge + Arrow */}
-              <div className="flex items-center space-x-4 shrink-0 sm:self-center self-end">
+              <div className="flex items-center space-x-3 shrink-0 sm:self-center self-end">
                 {flag.status && flag.status !== 'open' && (
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-sage-400 border border-white/10 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full bg-slate-50">
                     {flag.status.replace('_', ' ')}
                   </span>
                 )}
 
-                <span className={`text-[10px] font-mono tracking-widest px-3 py-1 rounded-full border uppercase ${badgeStyle}`}>
+                <span className={`text-[10px] font-mono font-bold tracking-widest px-2.5 py-0.5 rounded-full border uppercase ${badgeStyle}`}>
                   {badgeLabel}
                 </span>
 
-                <div className="w-8 h-8 rounded-full bg-white/5 group-hover:bg-white/10 flex items-center justify-center text-sage-400 group-hover:text-white transition-all">
-                  <ChevronRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
+                <div className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-emerald-50 flex items-center justify-center text-slate-400 group-hover:text-emerald-700 transition-all">
+                  <ChevronRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </div>
             </div>
@@ -136,14 +138,16 @@ export default function ReviewFlagsDashboard({
       </div>
 
       {/* Side Sheet for Detailed Review */}
-      <FlagDetailSheet
-        flag={selectedFlag}
-        isOpen={isSheetOpen}
-        onClose={handleCloseSheet}
-        onUpdateStatus={handleStatusChange}
-        language={language}
-        onOpenDocumentViewer={onOpenDocumentViewer}
-      />
+      {selectedFlag && (
+        <FlagDetailSheet
+          flag={selectedFlag}
+          isOpen={isSheetOpen}
+          onClose={handleCloseSheet}
+          onUpdateStatus={handleStatusChange}
+          language={language}
+          onOpenDocumentViewer={onOpenDocumentViewer}
+        />
+      )}
     </div>
   );
 }
