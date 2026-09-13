@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { ArrowRight, Lock, Building, Mail, UserCheck, Sparkles, AlertCircle, ShieldCheck } from 'lucide-react';
 
 export default function LoginScreen({ onLogin, onBackToShowcase }) {
-  const [hospital, setHospital] = useState('St. Jude Memorial Hospital - Infectious Diseases & AMS');
-  const [email, setEmail] = useState('dr.sharma@hospital.org');
-  const [password, setPassword] = useState('clinical-secure-2026');
+  const [hospital, setHospital] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [role, setRole] = useState('Clinical Pharmacist');
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState(null);
