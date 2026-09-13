@@ -104,3 +104,28 @@ class KaggleSyncResponse(BaseModel):
     dataset_path: str
     total_cases_indexed: int
     sample_cases: List[KaggleCaseSummary] = []
+
+class LoginRequest(BaseModel):
+    hospital: str
+    email: str
+    role: Optional[str] = "Clinical Pharmacist"
+
+class LoginResponse(BaseModel):
+    is_authorized: bool
+    user: Dict[str, Any]
+    token: str
+    message: str
+
+class PrescriptionCreateRequest(BaseModel):
+    patient_alias: str
+    drug_name: str
+    dosage: Optional[str] = "1g"
+    frequency: Optional[str] = "TDS"
+    route: Optional[str] = "IV"
+    indication: Optional[str] = None
+    status: Optional[str] = "Active"
+    prescribing_doctor: Optional[str] = "Dr. Sharma (Clinical Pharmacist)"
+    source_type: Optional[str] = "Manual Entry"
+    raw_ocr_snippet: Optional[str] = None
+    gemini_extracted_notes: Optional[str] = None
+

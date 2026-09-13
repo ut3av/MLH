@@ -1,24 +1,30 @@
 import React from 'react';
-import { User, LogOut } from 'lucide-react';
+import { User, LogOut, Lock, ArrowRight } from 'lucide-react';
 
 export default function Navbar({ 
   currentTab, 
   setCurrentTab, 
   user, 
+  isAuthenticated,
   onLogout,
   language,
   setLanguage,
   onNewReviewClick
 }) {
+  const isLanding = currentTab === 'landing' || !isAuthenticated;
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/75 backdrop-blur-2xl backdrop-saturate-150 border-b border-slate-200/70 text-slate-900 shadow-[0_2px_16px_rgba(0,0,0,0.02)] transition-all">
+    <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-2xl backdrop-saturate-150 border-b border-slate-200/70 text-slate-900 shadow-[0_2px_16px_rgba(0,0,0,0.02)] transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           
-          {/* Left Brand Identity: No logo, only DIYA with modern typography */}
+          {/* Left Brand Identity */}
           <div 
             className="flex items-center space-x-3 cursor-pointer group"
-            onClick={() => setCurrentTab('landing')}
+            onClick={() => {
+              if (isAuthenticated) setCurrentTab('dashboard');
+              else setCurrentTab('landing');
+            }}
           >
             <span className="text-xl font-medium tracking-tight text-slate-900 group-hover:text-emerald-800 transition-colors select-none font-sans">
               DIYA
@@ -28,61 +34,79 @@ export default function Navbar({
             </span>
           </div>
 
-          {/* Center Navigation Links: Apple liquid glass pill styling */}
-          <nav className="hidden md:flex items-center space-x-1 text-xs font-medium text-slate-600 bg-slate-100/60 backdrop-blur-xl p-1 rounded-full border border-slate-200/50 shadow-inner">
-            <button
-              onClick={() => setCurrentTab('landing')}
-              className={`px-4 py-1.5 rounded-full transition-all cursor-pointer ${
-                currentTab === 'landing' 
-                  ? 'text-slate-950 bg-white font-semibold shadow-xs border border-slate-200/80' 
-                  : 'hover:text-slate-950 hover:bg-white/60'
-              }`}
-            >
-              Overview
-            </button>
-            <button
-              onClick={() => setCurrentTab('dashboard')}
-              className={`px-4 py-1.5 rounded-full transition-all cursor-pointer ${
-                currentTab === 'dashboard' || currentTab === 'review' 
-                  ? 'text-slate-950 bg-white font-semibold shadow-xs border border-slate-200/80' 
-                  : 'hover:text-slate-950 hover:bg-white/60'
-              }`}
-            >
-              Reviews
-            </button>
-            <button
-              onClick={() => setCurrentTab('patients')}
-              className={`px-4 py-1.5 rounded-full transition-all cursor-pointer ${
-                currentTab === 'patients' 
-                  ? 'text-slate-950 bg-white font-semibold shadow-xs border border-slate-200/80' 
-                  : 'hover:text-slate-950 hover:bg-white/60'
-              }`}
-            >
-              Patients
-            </button>
-            <button
-              onClick={() => setCurrentTab('guidelines')}
-              className={`px-4 py-1.5 rounded-full transition-all cursor-pointer ${
-                currentTab === 'guidelines' 
-                  ? 'text-slate-950 bg-white font-semibold shadow-xs border border-slate-200/80' 
-                  : 'hover:text-slate-950 hover:bg-white/60'
-              }`}
-            >
-              Guidelines
-            </button>
-            <button
-              onClick={() => setCurrentTab('activity')}
-              className={`px-4 py-1.5 rounded-full transition-all cursor-pointer ${
-                currentTab === 'activity' 
-                  ? 'text-slate-950 bg-white font-semibold shadow-xs border border-slate-200/80' 
-                  : 'hover:text-slate-950 hover:bg-white/60'
-              }`}
-            >
-              Activity
-            </button>
-          </nav>
+          {/* Center Navigation Links: ONLY VISIBLE IF AUTHENTICATED */}
+          {isAuthenticated ? (
+            <nav className="hidden md:flex items-center space-x-1 text-xs font-medium text-slate-600 bg-slate-100/70 backdrop-blur-xl p-1 rounded-full border border-slate-200/50 shadow-inner">
+              <button
+                onClick={() => setCurrentTab('dashboard')}
+                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
+                  currentTab === 'dashboard' || currentTab === 'review' 
+                    ? 'text-slate-950 bg-white font-semibold shadow-xs border border-slate-200/80' 
+                    : 'hover:text-slate-950 hover:bg-white/60'
+                }`}
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={() => setCurrentTab('new_review')}
+                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
+                  currentTab === 'new_review' 
+                    ? 'text-slate-950 bg-white font-semibold shadow-xs border border-slate-200/80' 
+                    : 'hover:text-slate-950 hover:bg-white/60'
+                }`}
+              >
+                New Review (OCR)
+              </button>
+              <button
+                onClick={() => setCurrentTab('patients')}
+                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
+                  currentTab === 'patients' 
+                    ? 'text-slate-950 bg-white font-semibold shadow-xs border border-slate-200/80' 
+                    : 'hover:text-slate-950 hover:bg-white/60'
+                }`}
+              >
+                Patient Tracks
+              </button>
+              <button
+                onClick={() => setCurrentTab('prescriptions')}
+                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
+                  currentTab === 'prescriptions' 
+                    ? 'text-slate-950 bg-white font-semibold shadow-xs border border-slate-200/80' 
+                    : 'hover:text-slate-950 hover:bg-white/60'
+                }`}
+              >
+                Prescription History
+              </button>
+              <button
+                onClick={() => setCurrentTab('guidelines')}
+                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
+                  currentTab === 'guidelines' 
+                    ? 'text-slate-950 bg-white font-semibold shadow-xs border border-slate-200/80' 
+                    : 'hover:text-slate-950 hover:bg-white/60'
+                }`}
+              >
+                Guidelines
+              </button>
+              <button
+                onClick={() => setCurrentTab('activity')}
+                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
+                  currentTab === 'activity' 
+                    ? 'text-slate-950 bg-white font-semibold shadow-xs border border-slate-200/80' 
+                    : 'hover:text-slate-950 hover:bg-white/60'
+                }`}
+              >
+                Audit Activity
+              </button>
+            </nav>
+          ) : (
+            /* When not authenticated on Landing Page, show NO links to other pages */
+            <div className="hidden sm:flex items-center space-x-2 text-xs text-slate-500 font-medium">
+              <Lock className="w-3.5 h-3.5 text-slate-400" />
+              <span>Protected Clinical Decision Gateway</span>
+            </div>
+          )}
 
-          {/* Right User Controls */}
+          {/* Right Controls */}
           <div className="flex items-center space-x-3">
             
             {/* Language Toggle (EN | HI) */}
@@ -109,33 +133,35 @@ export default function Navbar({
               </button>
             </div>
 
-            {/* Quick Portal Action */}
-            <button
-              onClick={() => setCurrentTab(currentTab === 'landing' ? 'dashboard' : 'new_review')}
-              className="hidden sm:inline-flex items-center space-x-1.5 px-4 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium shadow-xs transition-all cursor-pointer"
-            >
-              <span>{currentTab === 'landing' ? 'Clinical Portal' : 'New Review'}</span>
-            </button>
-
-            {/* User Profile Pill */}
-            <div className="flex items-center space-x-2 text-xs font-medium text-slate-700 bg-slate-100/80 px-3 py-1 rounded-full border border-slate-200/60">
-              <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-slate-600">
-                <User className="w-3 h-3" />
-              </div>
-              <span className="hidden sm:inline">Dr. Sharma</span>
-              <span className="text-slate-300 text-[10px]">|</span>
-              <span className="text-[11px] text-slate-500 hidden md:inline">Pharmacist</span>
-            </div>
-
-            {/* Sign out */}
-            {onLogout && (
+            {/* If NOT Authenticated: Show single clear Login button */}
+            {!isAuthenticated ? (
               <button
-                onClick={onLogout}
-                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-                title="Sign out"
+                onClick={() => setCurrentTab('login')}
+                className="inline-flex items-center space-x-1.5 px-4 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium shadow-xs transition-all cursor-pointer"
               >
-                <LogOut className="w-4 h-4" />
+                <span>Login</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
+            ) : (
+              /* If Authenticated: Show Staff Info & Sign out */
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 text-xs font-medium text-slate-700 bg-slate-100/80 px-3 py-1 rounded-full border border-slate-200/60">
+                  <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-slate-600">
+                    <User className="w-3 h-3" />
+                  </div>
+                  <span className="hidden sm:inline">{user?.email?.split('@')[0] || 'Dr. Sharma'}</span>
+                  <span className="text-slate-300 text-[10px]">|</span>
+                  <span className="text-[11px] text-slate-500 hidden md:inline">{user?.role || 'Pharmacist'}</span>
+                </div>
+
+                <button
+                  onClick={onLogout}
+                  className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                  title="Sign out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
             )}
 
           </div>
