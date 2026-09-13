@@ -1,100 +1,153 @@
-import React from 'react';
-import { AlertTriangle, Info, FileWarning, HelpCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronRight, ShieldAlert } from 'lucide-react';
+import FlagDetailSheet from './FlagDetailSheet';
 
-export default function ReviewFlagsDashboard({ flags, questions, setFlags, setQuestions }) {
+const API_BASE = 'http://localhost:8000';
+
+export default function ReviewFlagsDashboard({ 
+  flags = [], 
+  setFlags, 
+  language = 'English',
+  onOpenDocumentViewer 
+}) {
+  const [selectedFlag, setSelectedFlag] = useState(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const isHindi = language === 'Hindi';
+
   if (!flags || flags.length === 0) return null;
 
-  const handleFlagStatus = (id, status) => {
-    setFlags(flags.map(f => f.flag_id === id ? { ...f, status } : f));
+  const handleOpenFlag = (flag) => {
+    setSelectedFlag(flag);
+    setIsSheetOpen(true);
   };
-  
-  const handleQuestionStatus = (id, status) => {
-    setQuestions(questions.map(q => q.question_id === id ? { ...q, status } : q));
+
+  const handleCloseSheet = () => {
+    setIsSheetOpen(false);
+  };
+
+  const handleStatusChange = async (id, status) => {
+    // Optimistic update
+    if (setFlags) {
+      setFlags(flags.map(f => (f.id === id || f.flag_id === id) ? { ...f, status } : f));
+    }
+    if (selectedFlag && (selectedFlag.id === id || selectedFlag.flag_id === id)) {
+      setSelectedFlag(prev => ({ ...prev, status }));
+    }
+
+    try {
+      await fetch(`${API_BASE}/api/reviews/${id}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, note: `Status updated by user to ${status}` })
+      });
+    } catch (err) {
+      console.warn('Backend status update failed, state preserved locally:', err);
+    }
   };
 
   return (
-    <div className="space-y-8">
-      {/* Review Flags Section */}
-      <div>
-        <h2 className="text-xl font-bold text-slate-800 flex items-center mb-4">
-          <AlertTriangle className="h-5 w-5 text-amber-500 mr-2" />
-          Stewardship Review Flags
+    <div className="space-y-6 text-left">
+      {/* Section Header */}
+      <div className="space-y-1">
+        <h2 className="text-xl font-semibold text-slate-900 flex items-center space-x-2">
+          <ShieldAlert className="w-5 h-5 text-amber-600" />
+          <span>Clinical Review Flags</span>
         </h2>
-        
-        <div className="space-y-4">
-          {flags.map((flag) => (
-            <div key={flag.flag_id} className={`p-4 rounded-lg border shadow-sm ${flag.priority === 'high' ? 'bg-rose-50 border-rose-200' : 'bg-amber-50 border-amber-200'}`}>
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <h3 className={`font-semibold text-lg ${flag.priority === 'high' ? 'text-rose-800' : 'text-amber-800'}`}>
-                    {flag.title}
-                  </h3>
-                  <p className="text-sm text-slate-600 mt-1">{flag.description}</p>
-                </div>
-                <span className={`px-2 py-1 text-xs font-bold uppercase rounded ${flag.priority === 'high' ? 'bg-rose-200 text-rose-800' : 'bg-amber-200 text-amber-800'}`}>
-                  {flag.priority}
+        <p className="text-xs text-slate-500 font-normal">
+          DIYA identified information that may require pharmacist or clinician review before therapy continuation.
+        </p>
+      </div>
+
+      {/* Vertical List */}
+      <div className="space-y-3 pt-1">
+        {flags.map((flag, idx) => {
+          const flagId = flag.id || flag.flag_id || idx;
+          const num = String(idx + 1).padStart(2, '0');
+          const isHigh = flag.priority === 'high';
+          const isAttention = flag.type?.includes('gap') || flag.type?.includes('allergy') || flag.type?.includes('clarification');
+
+          const badgeLabel = isHigh ? 'HIGH' : isAttention ? 'ATTENTION' : 'REVIEW';
+          const badgeStyle = isHigh 
+            ? 'text-rose-700 border-rose-300 bg-rose-50'
+            : isAttention 
+              ? 'text-amber-700 border-amber-300 bg-amber-50'
+              : 'text-emerald-700 border-emerald-300 bg-emerald-50';
+
+          const rationaleText = (isHindi && flag.rationale_hi) ? flag.rationale_hi : (flag.rationale || flag.description);
+
+          const rawTitle = flag.title || flag.rationale || 'Stewardship Review';
+          const cleanTitle = String(rawTitle)
+            .replace(' requires review', '')
+            .replace(' is unverified (UNKNOWN vs NEGATIVE)', '')
+            .replace(' recency (>48 hours) exceeded', '');
+
+          const statusSubtitle = isHigh 
+            ? 'Review required' 
+            : isAttention 
+              ? 'Incomplete information' 
+              : 'Confirmation required';
+
+          return (
+            <div
+              key={flagId}
+              onClick={() => handleOpenFlag(flag)}
+              className="rounded-xl bg-white p-5 border border-slate-200 hover:border-emerald-300 hover:shadow-xs transition-all cursor-pointer group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+            >
+              {/* Left Column: Number + Content */}
+              <div className="flex items-start space-x-4">
+                <span className="text-lg font-bold font-mono text-slate-400 group-hover:text-emerald-600 transition-colors shrink-0">
+                  {num}
                 </span>
-              </div>
-              
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white p-3 rounded border border-slate-200 text-sm">
-                  <strong className="text-slate-700 flex items-center mb-2"><FileWarning className="h-4 w-4 mr-1 text-slate-500"/> Patient Evidence</strong>
-                  <ul className="list-disc pl-5 space-y-1">
-                    {flag.patient_evidence.map((ev, i) => (
-                       <li key={i} className="text-slate-600">{ev}</li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div className="bg-white p-3 rounded border border-slate-200 text-sm">
-                  <strong className="text-slate-700 flex items-center mb-2"><Info className="h-4 w-4 mr-1 text-blue-500"/> Guideline Links</strong>
-                  <ul className="list-disc pl-5 space-y-1">
-                    {flag.guideline_evidence_ids.map((gid, i) => (
-                       <li key={i} className="text-blue-600">{gid}</li>
-                    ))}
-                  </ul>
+
+                <div className="space-y-1 max-w-xl">
+                  <div className="flex items-center space-x-3">
+                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-emerald-800 transition-colors">
+                      {cleanTitle}
+                    </h3>
+                  </div>
+
+                  <p className="text-[11px] font-mono uppercase tracking-wider text-slate-500">
+                    {statusSubtitle}
+                  </p>
+
+                  <p className="text-xs text-slate-600 font-normal leading-relaxed pt-0.5">
+                    {rationaleText}
+                  </p>
                 </div>
               </div>
 
-              <div className="mt-4 flex space-x-2 border-t pt-3 border-slate-200/50">
-                <button 
-                  onClick={() => handleFlagStatus(flag.flag_id, 'reviewed')}
-                  className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${flag.status === 'reviewed' ? 'bg-emerald-100 text-emerald-700' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-300'}`}
-                >
-                  Mark Reviewed
-                </button>
+              {/* Right Column: Priority Badge + Arrow */}
+              <div className="flex items-center space-x-3 shrink-0 sm:self-center self-end">
+                {flag.status && flag.status !== 'open' && (
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full bg-slate-50">
+                    {flag.status.replace('_', ' ')}
+                  </span>
+                )}
+
+                <span className={`text-[10px] font-mono font-bold tracking-widest px-2.5 py-0.5 rounded-full border uppercase ${badgeStyle}`}>
+                  {badgeLabel}
+                </span>
+
+                <div className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-emerald-50 flex items-center justify-center text-slate-400 group-hover:text-emerald-700 transition-all">
+                  <ChevronRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
+                </div>
               </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
-      {/* Clinician Questions Section */}
-      <div>
-         <h2 className="text-xl font-bold text-slate-800 flex items-center mb-4">
-          <HelpCircle className="h-5 w-5 text-indigo-500 mr-2" />
-          Clinician Review Questions
-        </h2>
-        
-        <div className="space-y-4">
-           {questions.map(q => (
-              <div key={q.question_id} className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex items-start">
-                 <div className="bg-indigo-100 p-2 rounded-full mr-4 shrink-0">
-                    <HelpCircle className="h-5 w-5 text-indigo-600" />
-                 </div>
-                 <div className="flex-grow">
-                    <h3 className="font-semibold text-slate-800 text-lg">{q.question}</h3>
-                    <p className="text-sm text-slate-600 mt-1 mb-2"><strong>Reason:</strong> {q.reason}</p>
-                    <div className="flex space-x-2">
-                       <button onClick={() => handleQuestionStatus(q.question_id, 'resolved')} className={`text-xs px-2 py-1 rounded border ${q.status === 'resolved' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>Resolved</button>
-                       <button onClick={() => handleQuestionStatus(q.question_id, 'escalated')} className={`text-xs px-2 py-1 rounded border ${q.status === 'escalated' ? 'bg-rose-100 text-rose-700 border-rose-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>Escalate</button>
-                    </div>
-                 </div>
-              </div>
-           ))}
-        </div>
-      </div>
-
+      {/* Side Sheet for Detailed Review */}
+      {selectedFlag && (
+        <FlagDetailSheet
+          flag={selectedFlag}
+          isOpen={isSheetOpen}
+          onClose={handleCloseSheet}
+          onUpdateStatus={handleStatusChange}
+          language={language}
+          onOpenDocumentViewer={onOpenDocumentViewer}
+        />
+      )}
     </div>
   );
 }

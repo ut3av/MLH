@@ -3,7 +3,63 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply antialiased text-slate-900 bg-slate-50;
+  :root {
+    color-scheme: light;
   }
+  
+  body {
+    background-color: #F8FAFC;
+    color: #0F172A;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
+
+@layer utilities {
+  .clinical-nav {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+  }
+
+  .clinical-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03), 0 1px 2px -1px rgba(15, 23, 42, 0.03);
+  }
+
+  .clinical-card-hover {
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .clinical-card-hover:hover {
+    border-color: #CBD5E1;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Minimalist light scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
 }

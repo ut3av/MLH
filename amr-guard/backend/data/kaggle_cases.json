@@ -1,0 +1,405 @@
+[
+  {
+    "case_id": "kaggle_jc2962517",
+    "patient_alias": "Patient JC2962517 (Kaggle ARMD)",
+    "age": "62",
+    "gender": "Female",
+    "infection_site": "Urine",
+    "organism": "Klebsiella Pneumoniae",
+    "current_empirical_drug": "Meropenem",
+    "empirical_sig": "Meropenem 1g IV TDS",
+    "susceptibilities": {
+      "Meropenem": "SUSCEPTIBLE",
+      "Cefazolin": "RESISTANT",
+      "Ceftriaxone": "SUSCEPTIBLE",
+      "Ertapenem": "SUSCEPTIBLE"
+    },
+    "susceptible_count": 3,
+    "resistant_count": 1,
+    "creatinine": "1.7 mg/dL (48h ago)",
+    "bun": "31.0 mg/dL",
+    "wbc": "9.4 x10^3/uL",
+    "allergy": {
+      "name": "Penicillin",
+      "reaction": "Mild rash reported 5 years ago (severity unclear)"
+    }
+  },
+  {
+    "case_id": "kaggle_jc763927",
+    "patient_alias": "Patient JC763927 (Kaggle ARMD)",
+    "age": "62",
+    "gender": "Female",
+    "infection_site": "Urine",
+    "organism": "Klebsiella Pneumoniae",
+    "current_empirical_drug": "Meropenem",
+    "empirical_sig": "Meropenem 1g IV TDS",
+    "susceptibilities": {
+      "Ampicillin": "RESISTANT",
+      "Cefepime": "RESISTANT",
+      "Aztreonam": "SUSCEPTIBLE",
+      "Trimethoprim/Sulfamethoxazole": "SUSCEPTIBLE",
+      "Ciprofloxacin": "SUSCEPTIBLE"
+    },
+    "susceptible_count": 3,
+    "resistant_count": 2,
+    "creatinine": "1.7 mg/dL (48h ago)",
+    "bun": "26.0 mg/dL",
+    "wbc": "15.4 x10^3/uL",
+    "allergy": {
+      "name": "Penicillin",
+      "reaction": "Mild rash reported 5 years ago (severity unclear)"
+    }
+  },
+  {
+    "case_id": "kaggle_jc531915",
+    "patient_alias": "Patient JC531915 (Kaggle ARMD)",
+    "age": "62",
+    "gender": "Female",
+    "infection_site": "Respiratory",
+    "organism": "Klebsiella Pneumoniae",
+    "current_empirical_drug": "Piperacillin-Tazobactam",
+    "empirical_sig": "Piperacillin-Tazobactam 4.5g IV QID",
+    "susceptibilities": {
+      "Ampicillin": "RESISTANT",
+      "Ceftriaxone": "SUSCEPTIBLE",
+      "Ciprofloxacin": "INTERMEDIATE",
+      "Tobramycin": "SUSCEPTIBLE"
+    },
+    "susceptible_count": 2,
+    "resistant_count": 1,
+    "creatinine": "1.7 mg/dL (48h ago)",
+    "bun": "14.0 mg/dL",
+    "wbc": "0.9 x10^3/uL",
+    "allergy": {
+      "name": "Penicillin",
+      "reaction": "Mild rash reported 5 years ago (severity unclear)"
+    }
+  },
+  {
+    "case_id": "kaggle_jc526179",
+    "patient_alias": "Patient JC526179 (Kaggle ARMD)",
+    "age": "62",
+    "gender": "Female",
+    "infection_site": "Respiratory",
+    "organism": "Serratia Liquefaciens",
+    "current_empirical_drug": "Piperacillin-Tazobactam",
+    "empirical_sig": "Piperacillin-Tazobactam 4.5g IV QID",
+    "susceptibilities": {
+      "Tigecycline": "SUSCEPTIBLE",
+      "Trimethoprim/Sulfamethoxazole": "SUSCEPTIBLE",
+      "Ertapenem": "SUSCEPTIBLE",
+      "Oxacillin": "SUSCEPTIBLE",
+      "Ceftazidime": "SUSCEPTIBLE",
+      "Moxifloxacin": "SUSCEPTIBLE",
+      "Meropenem": "SUSCEPTIBLE",
+      "Vancomycin": "SUSCEPTIBLE"
+    },
+    "susceptible_count": 8,
+    "resistant_count": 0,
+    "creatinine": "1.7 mg/dL (48h ago)",
+    "bun": "24.0 mg/dL",
+    "wbc": "4.3 x10^3/uL",
+    "allergy": {
+      "name": "Penicillin",
+      "reaction": "Mild rash reported 5 years ago (severity unclear)"
+    }
+  },
+  {
+    "case_id": "kaggle_jc926335",
+    "patient_alias": "Patient JC926335 (Kaggle ARMD)",
+    "age": "62",
+    "gender": "Female",
+    "infection_site": "Respiratory",
+    "organism": "Staphylococcus Aureus",
+    "current_empirical_drug": "Piperacillin-Tazobactam",
+    "empirical_sig": "Piperacillin-Tazobactam 4.5g IV QID",
+    "susceptibilities": {
+      "Linezolid": "SUSCEPTIBLE",
+      "Ciprofloxacin": "RESISTANT",
+      "Amikacin": "RESISTANT",
+      "Tobramycin": "SUSCEPTIBLE",
+      "Trimethoprim/Sulfamethoxazole": "RESISTANT",
+      "Meropenem": "SUSCEPTIBLE"
+    },
+    "susceptible_count": 3,
+    "resistant_count": 3,
+    "creatinine": "1.7 mg/dL (48h ago)",
+    "bun": "9.0 mg/dL",
+    "wbc": "7.8 x10^3/uL",
+    "allergy": {
+      "name": "Penicillin",
+      "reaction": "Mild rash reported 5 years ago (severity unclear)"
+    }
+  },
+  {
+    "case_id": "kaggle_jc2061449",
+    "patient_alias": "Patient JC2061449 (Kaggle ARMD)",
+    "age": "62",
+    "gender": "Female",
+    "infection_site": "Respiratory",
+    "organism": "Staphylococcus Aureus",
+    "current_empirical_drug": "Piperacillin-Tazobactam",
+    "empirical_sig": "Piperacillin-Tazobactam 4.5g IV QID",
+    "susceptibilities": {
+      "Linezolid": "SUSCEPTIBLE",
+      "Doripenem": "RESISTANT",
+      "Meropenem": "RESISTANT",
+      "Trimethoprim/Sulfamethoxazole": "SUSCEPTIBLE",
+      "Clindamycin": "RESISTANT",
+      "Aztreonam": "RESISTANT",
+      "Amikacin": "RESISTANT",
+      "Tobramycin": "SUSCEPTIBLE",
+      "Ceftolozane/Tazobactam": "SUSCEPTIBLE",
+      "Piperacillin/Tazobactam": "SUSCEPTIBLE",
+      "Imipenem": "SUSCEPTIBLE"
+    },
+    "susceptible_count": 6,
+    "resistant_count": 5,
+    "creatinine": "1.7 mg/dL (48h ago)",
+    "bun": "26.0 mg/dL",
+    "wbc": "15.4 x10^3/uL",
+    "allergy": {
+      "name": "Penicillin",
+      "reaction": "Mild rash reported 5 years ago (severity unclear)"
+    }
+  },
+  {
+    "case_id": "kaggle_jc1713914",
+    "patient_alias": "Patient JC1713914 (Kaggle ARMD)",
+    "age": "62",
+    "gender": "Female",
+    "infection_site": "Urine",
+    "organism": "Enterobacter Gergoviae",
+    "current_empirical_drug": "Meropenem",
+    "empirical_sig": "Meropenem 1g IV TDS",
+    "susceptibilities": {
+      "Levofloxacin": "SUSCEPTIBLE",
+      "Ertapenem": "SUSCEPTIBLE",
+      "Amikacin": "SUSCEPTIBLE",
+      "Amoxicillin/Clavulanic Acid": "SUSCEPTIBLE"
+    },
+    "susceptible_count": 4,
+    "resistant_count": 0,
+    "creatinine": "1.7 mg/dL (48h ago)",
+    "bun": "26.0 mg/dL",
+    "wbc": "15.4 x10^3/uL",
+    "allergy": {
+      "name": "Penicillin",
+      "reaction": "Mild rash reported 5 years ago (severity unclear)"
+    }
+  },
+  {
+    "case_id": "kaggle_jc2522668",
+    "patient_alias": "Patient JC2522668 (Kaggle ARMD)",
+    "age": "25-34",
+    "gender": "Male",
+    "infection_site": "Respiratory",
+    "organism": "Enterobacter Gergoviae",
+    "current_empirical_drug": "Piperacillin-Tazobactam",
+    "empirical_sig": "Piperacillin-Tazobactam 4.5g IV QID",
+    "susceptibilities": {
+      "Ciprofloxacin": "SUSCEPTIBLE",
+      "Erythromycin": "SUSCEPTIBLE",
+      "Trimethoprim/Sulfamethoxazole": "SUSCEPTIBLE",
+      "Vancomycin": "SUSCEPTIBLE",
+      "Clindamycin": "SUSCEPTIBLE"
+    },
+    "susceptible_count": 5,
+    "resistant_count": 0,
+    "creatinine": "1.7 mg/dL (48h ago)",
+    "bun": "26.0 mg/dL",
+    "wbc": "15.4 x10^3/uL",
+    "allergy": {
+      "name": "Penicillin",
+      "reaction": "Mild rash reported 5 years ago (severity unclear)"
+    }
+  },
+  {
+    "case_id": "kaggle_jc865575",
+    "patient_alias": "Patient JC865575 (Kaggle ARMD)",
+    "age": "62",
+    "gender": "Female",
+    "infection_site": "Respiratory",
+    "organism": "Mycobacterium Chelonae",
+    "current_empirical_drug": "Piperacillin-Tazobactam",
+    "empirical_sig": "Piperacillin-Tazobactam 4.5g IV QID",
+    "susceptibilities": {
+      "Imipenem": "INTERMEDIATE",
+      "Aztreonam": "RESISTANT",
+      "Ticarcillin": "SUSCEPTIBLE",
+      "Ciprofloxacin": "INTERMEDIATE",
+      "Tobramycin": "SUSCEPTIBLE",
+      "Ceftazidime": "SUSCEPTIBLE",
+      "Doripenem": "SUSCEPTIBLE",
+      "Amikacin": "INCONCLUSIVE"
+    },
+    "susceptible_count": 4,
+    "resistant_count": 1,
+    "creatinine": "1.7 mg/dL (48h ago)",
+    "bun": "26.0 mg/dL",
+    "wbc": "15.4 x10^3/uL",
+    "allergy": {
+      "name": "Penicillin",
+      "reaction": "Mild rash reported 5 years ago (severity unclear)"
+    }
+  },
+  {
+    "case_id": "kaggle_jc3255625",
+    "patient_alias": "Patient JC3255625 (Kaggle ARMD)",
+    "age": "62",
+    "gender": "Female",
+    "infection_site": "Respiratory",
+    "organism": "Proteus Vulgaris Group",
+    "current_empirical_drug": "Piperacillin-Tazobactam",
+    "empirical_sig": "Piperacillin-Tazobactam 4.5g IV QID",
+    "susceptibilities": {
+      "Levofloxacin": "SUSCEPTIBLE",
+      "Ertapenem": "SUSCEPTIBLE",
+      "Cefepime": "SUSCEPTIBLE",
+      "Ceftriaxone": "SUSCEPTIBLE",
+      "Trimethoprim/Sulfamethoxazole": "SUSCEPTIBLE"
+    },
+    "susceptible_count": 5,
+    "resistant_count": 0,
+    "creatinine": "1.7 mg/dL (48h ago)",
+    "bun": "26.0 mg/dL",
+    "wbc": "15.4 x10^3/uL",
+    "allergy": {
+      "name": "Penicillin",
+      "reaction": "Mild rash reported 5 years ago (severity unclear)"
+    }
+  },
+  {
+    "case_id": "kaggle_jc616985",
+    "patient_alias": "Patient JC616985 (Kaggle ARMD)",
+    "age": "62",
+    "gender": "Female",
+    "infection_site": "Respiratory",
+    "organism": "Pseudomonas Aeruginosa",
+    "current_empirical_drug": "Piperacillin-Tazobactam",
+    "empirical_sig": "Piperacillin-Tazobactam 4.5g IV QID",
+    "susceptibilities": {
+      "Amikacin": "INTERMEDIATE",
+      "Linezolid": "SUSCEPTIBLE",
+      "Clindamycin": "RESISTANT",
+      "Ciprofloxacin": "SUSCEPTIBLE",
+      "Erythromycin": "SUSCEPTIBLE"
+    },
+    "susceptible_count": 3,
+    "resistant_count": 1,
+    "creatinine": "1.7 mg/dL (48h ago)",
+    "bun": "26.0 mg/dL",
+    "wbc": "15.4 x10^3/uL",
+    "allergy": {
+      "name": "Penicillin",
+      "reaction": "Mild rash reported 5 years ago (severity unclear)"
+    }
+  },
+  {
+    "case_id": "kaggle_jc615024",
+    "patient_alias": "Patient JC615024 (Kaggle ARMD)",
+    "age": "25-34",
+    "gender": "Male",
+    "infection_site": "Respiratory",
+    "organism": "Pseudomonas Aeruginosa",
+    "current_empirical_drug": "Piperacillin-Tazobactam",
+    "empirical_sig": "Piperacillin-Tazobactam 4.5g IV QID",
+    "susceptibilities": {
+      "Amikacin": "RESISTANT",
+      "Aztreonam": "SUSCEPTIBLE",
+      "Tobramycin": "SUSCEPTIBLE",
+      "Ceftolozane/Tazobactam": "SUSCEPTIBLE",
+      "Gentamicin": "SUSCEPTIBLE",
+      "Piperacillin/Tazobactam": "RESISTANT",
+      "Cefepime": "RESISTANT",
+      "Imipenem": "SUSCEPTIBLE"
+    },
+    "susceptible_count": 5,
+    "resistant_count": 3,
+    "creatinine": "1.7 mg/dL (48h ago)",
+    "bun": "15.0 mg/dL",
+    "wbc": "6.9 x10^3/uL",
+    "allergy": {
+      "name": "Penicillin",
+      "reaction": "Mild rash reported 5 years ago (severity unclear)"
+    }
+  },
+  {
+    "case_id": "kaggle_jc511998",
+    "patient_alias": "Patient JC511998 (Kaggle ARMD)",
+    "age": "62",
+    "gender": "Female",
+    "infection_site": "Urine",
+    "organism": "Pseudomonas Aeruginosa",
+    "current_empirical_drug": "Meropenem",
+    "empirical_sig": "Meropenem 1g IV TDS",
+    "susceptibilities": {
+      "Cefepime": "SUSCEPTIBLE",
+      "Piperacillin/Tazobactam": "SUSCEPTIBLE",
+      "Ampicillin": "RESISTANT",
+      "Tobramycin": "SUSCEPTIBLE"
+    },
+    "susceptible_count": 3,
+    "resistant_count": 1,
+    "creatinine": "1.7 mg/dL (48h ago)",
+    "bun": "26.0 mg/dL",
+    "wbc": "15.4 x10^3/uL",
+    "allergy": {
+      "name": "Penicillin",
+      "reaction": "Mild rash reported 5 years ago (severity unclear)"
+    }
+  },
+  {
+    "case_id": "kaggle_jc570985",
+    "patient_alias": "Patient JC570985 (Kaggle ARMD)",
+    "age": "25-34",
+    "gender": "Male",
+    "infection_site": "Blood",
+    "organism": "Pseudomonas Aeruginosa",
+    "current_empirical_drug": "Meropenem",
+    "empirical_sig": "Meropenem 1g IV TDS",
+    "susceptibilities": {
+      "Ciprofloxacin": "SUSCEPTIBLE",
+      "Ampicillin/Sulbactam": "RESISTANT",
+      "Ertapenem": "SUSCEPTIBLE",
+      "Clindamycin": "SUSCEPTIBLE",
+      "Levofloxacin": "SUSCEPTIBLE"
+    },
+    "susceptible_count": 4,
+    "resistant_count": 1,
+    "creatinine": "1.7 mg/dL (48h ago)",
+    "bun": "10.0 mg/dL",
+    "wbc": "5.1 x10^3/uL",
+    "allergy": {
+      "name": "Penicillin",
+      "reaction": "Mild rash reported 5 years ago (severity unclear)"
+    }
+  },
+  {
+    "case_id": "kaggle_jc2198121",
+    "patient_alias": "Patient JC2198121 (Kaggle ARMD)",
+    "age": "25-34",
+    "gender": "Male",
+    "infection_site": "Respiratory",
+    "organism": "Mycobacterium Abscessus",
+    "current_empirical_drug": "Piperacillin-Tazobactam",
+    "empirical_sig": "Piperacillin-Tazobactam 4.5g IV QID",
+    "susceptibilities": {
+      "Amikacin": "RESISTANT",
+      "Meropenem": "SUSCEPTIBLE",
+      "Ciprofloxacin": "SUSCEPTIBLE",
+      "Levofloxacin": "SUSCEPTIBLE",
+      "Trimethoprim/Sulfamethoxazole": "SUSCEPTIBLE",
+      "Linezolid": "SUSCEPTIBLE"
+    },
+    "susceptible_count": 5,
+    "resistant_count": 1,
+    "creatinine": "1.7 mg/dL (48h ago)",
+    "bun": "13.0 mg/dL",
+    "wbc": "10.2 x10^3/uL",
+    "allergy": {
+      "name": "Penicillin",
+      "reaction": "Mild rash reported 5 years ago (severity unclear)"
+    }
+  }
+]

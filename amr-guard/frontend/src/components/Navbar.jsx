@@ -1,56 +1,140 @@
 import React from 'react';
-import { Shield, Github, Activity } from 'lucide-react';
+import { ShieldCheck, User, LogOut, BookOpen, Layers, Activity, Users } from 'lucide-react';
 
-const Navbar = ({ demoMode, setDemoMode }) => {
+export default function Navbar({ 
+  currentTab, 
+  setCurrentTab, 
+  user, 
+  onLogout,
+  language,
+  setLanguage,
+  onNewReviewClick
+}) {
   return (
-    <nav className="bg-slate-900 text-white shadow-lg border-b border-slate-700">
+    <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-200 text-slate-900 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex justify-between h-16 items-center">
           
-          {/* Logo and Project Name */}
-          <div className="flex items-center gap-3">
-            <Shield className="h-8 w-8 text-emerald-400" />
+          {/* Left Brand Identity */}
+          <div 
+            className="flex items-center space-x-3 cursor-pointer"
+            onClick={() => setCurrentTab('dashboard')}
+          >
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shadow-2xs">
+              <ShieldCheck className="w-4 h-4 stroke-[2]" />
+            </div>
+            
             <div>
-              <h1 className="text-xl font-bold tracking-tight text-white">
-                Project Tara <span className="text-emerald-400 text-sm border border-emerald-400 rounded px-1 ml-1">MLH</span>
-              </h1>
-              <p className="text-xs text-slate-400 hidden sm:block">
-                Antimicrobial Stewardship AI
+              <div className="flex items-center space-x-2">
+                <span className="text-base font-bold tracking-tight text-slate-900">
+                  DIYA
+                </span>
+                <span className="text-[10px] uppercase font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                  Hospital AMS
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 font-normal hidden sm:block">
+                Diagnostic Intelligence &amp; Antibiotic Review Assistant
               </p>
             </div>
           </div>
 
-          {/* Controls and MLH GitHub Link */}
-          <div className="flex items-center gap-4">
+          {/* Navigation Links */}
+          <nav className="hidden md:flex items-center space-x-1 text-xs font-semibold text-slate-600">
+            <button
+              onClick={() => setCurrentTab('dashboard')}
+              className={`px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+                currentTab === 'dashboard' || currentTab === 'review' 
+                  ? 'text-emerald-700 bg-emerald-50' 
+                  : 'hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              Reviews
+            </button>
+            <button
+              onClick={() => setCurrentTab('patients')}
+              className={`px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+                currentTab === 'patients' 
+                  ? 'text-emerald-700 bg-emerald-50' 
+                  : 'hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              Patients
+            </button>
+            <button
+              onClick={() => setCurrentTab('guidelines')}
+              className={`px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+                currentTab === 'guidelines' 
+                  ? 'text-emerald-700 bg-emerald-50' 
+                  : 'hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              Guidelines
+            </button>
+            <button
+              onClick={() => setCurrentTab('activity')}
+              className={`px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+                currentTab === 'activity' 
+                  ? 'text-emerald-700 bg-emerald-50' 
+                  : 'hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              Activity
+            </button>
+          </nav>
+
+          {/* Right User Controls */}
+          <div className="flex items-center space-x-3">
             
-            {/* Demo Mode Toggle */}
-            <div className="flex items-center gap-2 bg-slate-800 rounded-full px-3 py-1.5 border border-slate-700">
-              <Activity className={`h-4 w-4 ${demoMode ? 'text-amber-400' : 'text-slate-400'}`} />
-              <span className="text-sm text-slate-300 font-medium">Demo Mode</span>
-              <button 
-                onClick={() => setDemoMode(!demoMode)}
-                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${demoMode ? 'bg-amber-500' : 'bg-slate-600'}`}
+            {/* Language Toggle (EN | HI) */}
+            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-semibold">
+              <button
+                onClick={() => setLanguage('English')}
+                className={`px-2 py-1 rounded-md transition-all cursor-pointer ${
+                  language === 'English'
+                    ? 'bg-white text-slate-900 shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
               >
-                <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${demoMode ? 'translate-x-5' : 'translate-x-1'}`} />
+                EN
+              </button>
+              <button
+                onClick={() => setLanguage('Hindi')}
+                className={`px-2 py-1 rounded-md transition-all cursor-pointer ${
+                  language === 'Hindi'
+                    ? 'bg-white text-slate-900 shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                HI
               </button>
             </div>
 
-            {/* MLH GitHub Repository Link */}
-            <a 
-              href="https://github.com/yadavvansh25/MLH" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-md border border-slate-600 transition-colors shadow-sm"
-            >
-              <Github className="h-5 w-5" />
-              <span className="text-sm font-medium hidden sm:block">MLH Repo</span>
-            </a>
-            
+            {/* User Profile Pill */}
+            <div className="flex items-center space-x-2 text-xs font-medium text-slate-700 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+              <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-slate-600">
+                <User className="w-3 h-3" />
+              </div>
+              <span className="hidden sm:inline">Dr. Sharma</span>
+              <span className="text-slate-400 text-[10px]">|</span>
+              <span className="text-[11px] text-slate-500 hidden md:inline">Pharmacist</span>
+            </div>
+
+            {/* Sign out */}
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                title="Sign out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            )}
+
           </div>
+
         </div>
       </div>
-    </nav>
+    </header>
   );
-};
-
-export default Navbar;
+}

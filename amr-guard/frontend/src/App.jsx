@@ -1,113 +1,355 @@
 import React, { useState } from 'react';
 import Navbar from './components/Navbar';
-import MultiDocumentUpload from './components/MultiDocumentUpload';
+import LoginScreen from './components/LoginScreen';
+import MainDashboard from './components/MainDashboard';
+import NewReviewScreen from './components/NewReviewScreen';
 import PatientSummaryPanel from './components/PatientSummaryPanel';
-import ReviewFlagsDashboard from './components/ReviewFlagsDashboard';
+import ClinicalDecisionOutput from './components/ClinicalDecisionOutput';
 import ExportReviewCard from './components/ExportReviewCard';
-import RapidSummaryPanel from './components/RapidSummaryPanel';
+import GuidelinesPage from './components/GuidelinesPage';
+import PatientsListPage from './components/PatientsListPage';
+import ActivityTimelinePage from './components/ActivityTimelinePage';
+import AnalysisProgressModal from './components/AnalysisProgressModal';
+import DocumentViewerModal from './components/DocumentViewerModal';
+import { ArrowLeft, ShieldCheck, Eye, FileText, CheckCircle2 } from 'lucide-react';
+
+const API_BASE = 'http://localhost:8000';
 
 function App() {
-  const [demoMode, setDemoMode] = useState(true);
-  const [files, setFiles] = useState([]);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [analysisData, setAnalysisData] = useState(null);
-  
-  // State for interactive flags and questions
-  const [flags, setFlags] = useState([]);
-  const [questions, setQuestions] = useState([]);
+  // Authentication State
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userSession, setUserSession] = useState(null);
 
-  const handleAnalyze = async (e) => {
-    if (e) e.preventDefault();
-    setAnalyzing(true);
-    
+  // Clinical Navigation Tab: 'dashboard' | 'new_review' | 'review' | 'export' | 'patients' | 'guidelines' | 'activity'
+  const [currentTab, setCurrentTab] = useState('dashboard');
+  const [language, setLanguage] = useState('English');
+  const [isAnalyzingModalOpen, setIsAnalyzingModalOpen] = useState(false);
+
+  // Document Viewer Modal State
+  const [isDocViewerOpen, setIsDocViewerOpen] = useState(false);
+  const [activeDocName, setActiveDocName] = useState('Blood_Culture_Report.pdf');
+  const [activeDocEvidence, setActiveDocEvidence] = useState('');
+
+  // Active Patient Context
+  const [activePatientCase, setActivePatientCase] = useState({
+    case_id: 'PT-1042',
+    patient_profile: {
+      patient_alias: 'PT-1042',
+      age: '62',
+      sex: 'Male',
+      ward: 'Medicine / ICU Bed 08',
+      infection_site: 'Bloodstream (Bacteremia)',
+      allergies: [
+        { category: 'Allergy', name: 'Amoxicillin', value: 'Childhood rash; severity not documented', source_reference: 'Allergy_History.pdf', confidence: 'high' }
+      ],
+      medications: [
+        { category: 'Medication', name: 'current_antibiotic', value: 'Meropenem 1g IV TDS', source_reference: 'Medication_Chart.pdf', confidence: 'high' }
+      ],
+      cultures: [
+        { category: 'Microbiology', name: 'Organism', value: 'Escherichia coli (>10^5 CFU/mL)', source_reference: 'Blood_Culture_Report.pdf', confidence: 'high' },
+        { category: 'Microbiology', name: 'Ceftriaxone', value: 'SUSCEPTIBLE', source_reference: 'Blood_Culture_Report.pdf', confidence: 'high' },
+        { category: 'Microbiology', name: 'Meropenem', value: 'SUSCEPTIBLE', source_reference: 'Blood_Culture_Report.pdf', confidence: 'high' },
+        { category: 'Microbiology', name: 'Amoxicillin', value: 'RESISTANT', source_reference: 'Blood_Culture_Report.pdf', confidence: 'high' }
+      ],
+      labs: [
+        { category: 'Lab', name: 'Serum Creatinine', value: '1.8 mg/dL (Tested 72h ago)', source_reference: 'Renal_Function.pdf', confidence: 'high' }
+      ]
+    }
+  });
+
+  const handleLogin = (user) => {
+    setUserSession(user);
+    setIsAuthenticated(true);
+    setCurrentTab('dashboard');
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setUserSession(null);
+    setCurrentTab('dashboard');
+  };
+
+  // Load a clinical review case
+  const handleSelectCase = async (caseKey) => {
+    setIsAnalyzingModalOpen(true);
     try {
-      const formData = new FormData();
-      files.forEach(f => formData.append('files', f));
-      formData.append('demo_mode', demoMode);
-
-      // We call the local backend. In real deployment this would be relative or configurable.
-      const response = await fetch('http://localhost:8000/api/analyze', {
-        method: 'POST',
-        body: formData,
+      const res = await fetch(`${API_BASE}/api/demo-cases/${caseKey}/load`, {
+        method: 'POST'
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch analysis");
+      if (res.ok) {
+        const data = await res.json();
+        setActivePatientCase(data);
       }
-
-      const data = await response.json();
-      setAnalysisData(data);
-      setFlags(data.review_flags || []);
-      setQuestions(data.clinician_review_questions || []);
-    } catch (error) {
-       console.error(error);
-       alert("Error analyzing files. Is the backend running?");
-    } finally {
-      setAnalyzing(false);
+    } catch (err) {
+      console.warn('Backend connection note, using local clinical case definition:', err);
+    }
+    // Set active case identifiers
+    if (caseKey === 'demo1') {
+      setActivePatientCase({
+        case_id: 'PT-1042',
+        patient_profile: {
+          patient_alias: 'PT-1042',
+          age: '62',
+          sex: 'Male',
+          ward: 'Medicine / ICU Bed 08',
+          infection_site: 'Bloodstream (Bacteremia)',
+          allergies: [
+            { category: 'Allergy', name: 'Amoxicillin', value: 'Childhood rash; severity not documented', source_reference: 'Allergy_History.pdf' }
+          ],
+          medications: [
+            { category: 'Medication', name: 'current_antibiotic', value: 'Meropenem 1g IV TDS', source_reference: 'Medication_Chart.pdf' }
+          ],
+          cultures: [
+            { category: 'Microbiology', name: 'Organism', value: 'Escherichia coli (>10^5 CFU/mL)' },
+            { category: 'Microbiology', name: 'Ceftriaxone', value: 'SUSCEPTIBLE' },
+            { category: 'Microbiology', name: 'Meropenem', value: 'SUSCEPTIBLE' }
+          ],
+          labs: [
+            { category: 'Lab', name: 'Serum Creatinine', value: '1.8 mg/dL (Tested 72h ago)' }
+          ]
+        }
+      });
+    } else if (caseKey === 'demo2') {
+      setActivePatientCase({
+        case_id: 'PT-1039',
+        patient_profile: {
+          patient_alias: 'PT-1039',
+          age: '54',
+          sex: 'Female',
+          ward: 'Ward 3 (General)',
+          infection_site: 'Complicated urinary tract infection',
+          allergies: [
+            { category: 'Allergy', name: 'Penicillin', value: 'Reaction unspecified; severity not documented' }
+          ],
+          medications: [
+            { category: 'Medication', name: 'current_antibiotic', value: 'Piperacillin/Tazobactam 4.5g IV TDS (Day 6)' }
+          ],
+          cultures: [
+            { category: 'Microbiology', name: 'Organism', value: 'Klebsiella pneumoniae' }
+          ],
+          labs: []
+        }
+      });
+    } else if (caseKey === 'demo3') {
+      setActivePatientCase({
+        case_id: 'PT-1035',
+        patient_profile: {
+          patient_alias: 'PT-1035',
+          age: '70',
+          sex: 'Male',
+          ward: 'Surgical Ward 2',
+          infection_site: 'Post-operative surgical site infection',
+          allergies: [
+            { category: 'Allergy', name: 'Penicillin', value: 'Anaphylaxis in ER note; NKDA in ward chart' }
+          ],
+          medications: [
+            { category: 'Medication', name: 'current_antibiotic', value: 'Meropenem (Chart) vs Pip-Taz (Note)' }
+          ],
+          cultures: [],
+          labs: []
+        }
+      });
     }
   };
 
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
-      <Navbar demoMode={demoMode} setDemoMode={setDemoMode} onHelpClick={() => {}} />
-      
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {!analysisData ? (
-           <div className="max-w-3xl mx-auto space-y-6">
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-                 <h2 className="text-xl font-bold mb-4">Start New Case</h2>
-                 <p className="text-slate-600 mb-6">Upload clinical documents to generate a patient-specific stewardship review.</p>
-                 <form onSubmit={handleAnalyze}>
-                   <MultiDocumentUpload files={files} setFiles={setFiles} />
-                   
-                   <div className="mt-6 flex justify-end">
-                      <button 
-                        type="submit"
-                        disabled={analyzing || files.length === 0}
-                        className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-medium rounded-lg shadow transition-colors flex items-center"
-                      >
-                        {analyzing ? 'Extracting & Analyzing...' : 'Generate Review Brief'}
-                      </button>
-                   </div>
-                 </form>
-                 {demoMode && (
-                   <p className="mt-3 text-sm text-amber-600 text-right">
-                     Running in Demo Mode. Results will be synthesized from demo packet.
-                   </p>
-                 )}
-              </div>
-           </div>
-        ) : (
-           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-3">
-                 <RapidSummaryPanel summary={analysisData.rapid_summary} />
-              </div>
-              <div className="lg:col-span-1 space-y-6">
-                 <PatientSummaryPanel analysisData={analysisData} />
-                 <button type="button" onClick={() => setAnalysisData(null)} className="w-full py-2 border border-slate-300 rounded text-slate-600 hover:bg-slate-100">
-                    Start New Case
-                 </button>
-              </div>
-              <div className="lg:col-span-2 space-y-6">
-                 <ReviewFlagsDashboard 
-                    flags={flags} 
-                    questions={questions}
-                    setFlags={setFlags}
-                    setQuestions={setQuestions}
-                 />
-                 <ExportReviewCard analysisData={{...analysisData, review_flags: flags, clinician_review_questions: questions}} />
-              </div>
-           </div>
-        )}
-      </main>
+  const handleAnalysisComplete = () => {
+    setIsAnalyzingModalOpen(false);
+    setCurrentTab('review');
+  };
 
-      {/* Basic print styles */}
+  // Analyze new patient review upload
+  const handleAnalyzeUpload = async (casePayload) => {
+    setActivePatientCase({
+      case_id: casePayload.patient_alias,
+      patient_profile: {
+        patient_alias: casePayload.patient_alias,
+        age: casePayload.age,
+        sex: casePayload.sex,
+        ward: casePayload.ward,
+        infection_site: casePayload.infection_site,
+        allergies: [
+          { category: 'Allergy', name: 'Amoxicillin', value: 'Childhood rash; severity not documented' }
+        ],
+        medications: [
+          { category: 'Medication', name: 'current_antibiotic', value: 'Meropenem 1g IV TDS' }
+        ],
+        cultures: [
+          { category: 'Microbiology', name: 'Organism', value: 'Escherichia coli (>10^5 CFU/mL)' }
+        ],
+        labs: [
+          { category: 'Lab', name: 'Serum Creatinine', value: '1.8 mg/dL' }
+        ]
+      }
+    });
+
+    setIsAnalyzingModalOpen(true);
+  };
+
+  const handleOpenDocViewer = (docName, evidenceText) => {
+    setActiveDocName(docName || 'Blood_Culture_Report.pdf');
+    setActiveDocEvidence(evidenceText || '');
+    setIsDocViewerOpen(true);
+  };
+
+  // If not authenticated, render hospital login screen
+  if (!isAuthenticated) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased flex flex-col justify-between selection:bg-emerald-100 selection:text-emerald-900">
+      <div>
+        {/* Hospital Clean Top Navigation Bar */}
+        <Navbar
+          currentTab={currentTab}
+          setCurrentTab={setCurrentTab}
+          user={userSession}
+          onLogout={handleLogout}
+          language={language}
+          setLanguage={setLanguage}
+          onNewReviewClick={() => setCurrentTab('new_review')}
+        />
+
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          
+          {/* VIEW 1: Main Dashboard */}
+          {currentTab === 'dashboard' && (
+            <MainDashboard
+              onStartNewReview={() => setCurrentTab('new_review')}
+              onSelectCase={handleSelectCase}
+              language={language}
+            />
+          )}
+
+          {/* VIEW 2: Start a Patient Review (Upload Screen) */}
+          {currentTab === 'new_review' && (
+            <NewReviewScreen
+              onAnalyze={handleAnalyzeUpload}
+              isAnalyzing={isAnalyzingModalOpen}
+              onBack={() => setCurrentTab('dashboard')}
+              language={language}
+            />
+          )}
+
+          {/* VIEW 3: Clinical Review Dossier (Patient Snapshot + Main Output) */}
+          {currentTab === 'review' && (
+            <div className="space-y-6 text-left">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+                <button
+                  onClick={() => setCurrentTab('dashboard')}
+                  className="inline-flex items-center space-x-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Return to Clinical Reviews</span>
+                </button>
+
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-slate-500">Active Case:</span>
+                  <span className="text-xs font-mono font-bold text-slate-900">
+                    {activePatientCase.patient_profile?.patient_alias || 'PT-1042'}
+                  </span>
+                  <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    Decision Support Ready
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Left Column: Patient Overview, Snapshot & Microbiology (5 Cols) */}
+                <div className="lg:col-span-5 space-y-6">
+                  <PatientSummaryPanel
+                    profile={activePatientCase.patient_profile}
+                    language={language}
+                    onSelectFact={(cat, doc, snip) => handleOpenDocViewer(doc, snip)}
+                  />
+
+                  <button
+                    onClick={() => handleOpenDocViewer('Blood_Culture_Report.pdf', 'Escherichia coli isolated from blood culture. Ceftriaxone: Susceptible.')}
+                    className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 text-slate-700 rounded-xl border border-slate-200 text-xs font-semibold shadow-2xs flex items-center justify-center space-x-2 transition-colors cursor-pointer"
+                  >
+                    <Eye className="w-4 h-4 text-emerald-600" />
+                    <span>Open Grounding Document Viewer</span>
+                  </button>
+                </div>
+
+                {/* Right Column: Main Decision Support Output (7 Cols) */}
+                <div className="lg:col-span-7">
+                  <ClinicalDecisionOutput
+                    analysisData={activePatientCase}
+                    onOpenDocumentViewer={(doc, snip) => handleOpenDocViewer(doc, snip)}
+                    onExportReport={() => setCurrentTab('export')}
+                    language={language}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW 4: Export Clinical Review Brief */}
+          {currentTab === 'export' && (
+            <ExportReviewCard
+              analysisData={activePatientCase}
+              onBack={() => setCurrentTab('review')}
+              language={language}
+            />
+          )}
+
+          {/* VIEW 5: Patients Inpatient Queue */}
+          {currentTab === 'patients' && (
+            <PatientsListPage
+              onSelectPatient={handleSelectCase}
+            />
+          )}
+
+          {/* VIEW 6: Guidelines Evidence Library */}
+          {currentTab === 'guidelines' && (
+            <GuidelinesPage />
+          )}
+
+          {/* VIEW 7: Hospital Activity Timeline */}
+          {currentTab === 'activity' && (
+            <ActivityTimelinePage
+              onSelectCase={handleSelectCase}
+            />
+          )}
+
+        </main>
+      </div>
+
+      {/* Hospital Clinical Workflow Footer */}
+      <footer className="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 font-normal no-print">
+        <div className="max-w-6xl mx-auto px-4 space-y-1">
+          <p className="font-semibold text-slate-700">
+            DIYA: From patient data to evidence-guided antibiotic decisions.
+          </p>
+          <p className="text-[11px] text-slate-400">
+            AI prepares the decision. Healthcare professionals make it. Protected clinical workspace.
+          </p>
+        </div>
+      </footer>
+
+      {/* Analysis Progress Modal */}
+      <AnalysisProgressModal
+        isOpen={isAnalyzingModalOpen}
+        onComplete={handleAnalysisComplete}
+      />
+
+      {/* Grounding Document Viewer Modal */}
+      <DocumentViewerModal
+        isOpen={isDocViewerOpen}
+        onClose={() => setIsDocViewerOpen(false)}
+        initialDocument={activeDocName}
+        evidenceSnippet={activeDocEvidence}
+      />
+
+      {/* Print Styles */}
       <style dangerouslySetInnerHTML={{__html: `
         @media print {
+          body { background: white !important; color: black !important; }
           body * { visibility: hidden; }
           #export-card, #export-card * { visibility: visible; }
-          #export-card { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; }
-          .no-print { display: none; }
+          #export-card { position: absolute; left: 0; top: 0; width: 100%; border: none !important; box-shadow: none !important; padding: 0 !important; background: white !important; color: black !important; }
+          .no-print { display: none !important; }
         }
       `}} />
     </div>
