@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ChevronRight, ShieldAlert } from 'lucide-react';
 import FlagDetailSheet from './FlagDetailSheet';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://diyaaa.onrender.com';
 
 export default function ReviewFlagsDashboard({ 
   flags = [], 
