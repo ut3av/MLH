@@ -5,7 +5,8 @@ import { supabase } from '../supabaseClient';
 export default function MainDashboard({ 
   onStartNewReview, 
   onSelectCase, 
-  language = 'English' 
+  language = 'English',
+  isFreshUser = false
 }) {
   const isHindi = language === 'Hindi';
   const [patientList, setPatientList] = useState([]);
@@ -15,7 +16,7 @@ export default function MainDashboard({
   const fetchDashboardPatients = async () => {
     setIsLoading(true);
     try {
-      const data = await supabase.getPatients();
+      const data = await supabase.getPatients(isFreshUser);
       setPatientList(data);
     } catch (e) {
       console.warn('Dashboard patient load note:', e);
@@ -26,10 +27,10 @@ export default function MainDashboard({
 
   useEffect(() => {
     fetchDashboardPatients();
-  }, []);
+  }, [isFreshUser]);
 
   // Compute live counts
-  const totalCount = patientList.length || 3;
+  const totalCount = patientList.length;
   const awaitingCount = patientList.filter(p => (p.status || '').toLowerCase().includes('review') || (p.status || '').toLowerCase().includes('due') || (p.status || '').toLowerCase().includes('conflict')).length;
   const completedCount = totalCount - awaitingCount;
 
@@ -122,51 +123,77 @@ export default function MainDashboard({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {patientList.map((item, idx) => {
-                const alias = item.patient_alias || item.patientId || `PT-${idx + 1040}`;
-                const caseKey = getCaseKey(alias);
-                const status = item.status || 'Review required';
-                const currentDrug = item.current_antibiotic || item.currentDrug || 'Standard Regimen';
+              {patientList.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="py-12 px-4 text-center">
+                    <div className="max-w-sm mx-auto space-y-3">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200/80">
+                        <Plus className="w-6 h-6" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-slate-800">Fresh Clinical Workspace Ready</p>
+                        <p className="text-xs text-slate-500">
+                          No patient records registered yet. Upload blood culture, urine AST, or doctor prescriptions to begin.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={onStartNewReview}
+                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors cursor-pointer inline-flex items-center space-x-1.5"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Upload First Patient Report</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                patientList.map((item, idx) => {
+                  const alias = item.patient_alias || item.patientId || `PT-${idx + 1040}`;
+                  const caseKey = getCaseKey(alias);
+                  const status = item.status || 'Review required';
+                  const currentDrug = item.current_antibiotic || item.currentDrug || 'Standard Regimen';
 
-                return (
-                  <tr 
-                    key={item.id || alias}
-                    onClick={() => onSelectCase(caseKey)}
-                    className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
-                  >
-                    <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
-                      {alias}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <p className="font-semibold text-slate-800">{item.infection_site || item.caseName || 'Inpatient Admission'}</p>
-                      <p className="text-[11px] text-slate-400 font-normal italic">{item.organism_isolated || item.organism || 'Culture Pending'}</p>
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-600 font-medium">
-                      {item.ward || 'Inpatient Ward'}
-                    </td>
-                    <td className="py-3.5 px-4 font-mono text-[11px] text-emerald-800 font-medium">
-                      {currentDrug}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border ${
-                        status.toLowerCase().includes('conflict')
-                          ? 'bg-rose-50 text-rose-800 border-rose-200'
-                          : status.toLowerCase().includes('review') || status.toLowerCase().includes('due')
-                            ? 'bg-amber-50 text-amber-800 border-amber-200'
-                            : 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                      }`}>
-                        {status}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-right font-medium text-emerald-700 group-hover:text-emerald-800">
-                      <span className="inline-flex items-center space-x-1">
-                        <span>Open Review</span>
-                        <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
+                  return (
+                    <tr 
+                      key={item.id || alias}
+                      onClick={() => onSelectCase(caseKey)}
+                      className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                    >
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
+                        {alias}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <p className="font-semibold text-slate-800">{item.infection_site || item.caseName || 'Inpatient Admission'}</p>
+                        <p className="text-[11px] text-slate-400 font-normal italic">{item.organism_isolated || item.organism || 'Culture Pending'}</p>
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-600 font-medium">
+                        {item.ward || 'Inpatient Ward'}
+                      </td>
+                      <td className="py-3.5 px-4 font-mono text-[11px] text-emerald-800 font-medium">
+                        {currentDrug}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border ${
+                          status.toLowerCase().includes('conflict')
+                            ? 'bg-rose-50 text-rose-800 border-rose-200'
+                            : status.toLowerCase().includes('review') || status.toLowerCase().includes('due')
+                              ? 'bg-amber-50 text-amber-800 border-amber-200'
+                              : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                        }`}>
+                          {status}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-right font-medium text-emerald-700 group-hover:text-emerald-800">
+                        <span className="inline-flex items-center space-x-1">
+                          <span>Open Review</span>
+                          <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
