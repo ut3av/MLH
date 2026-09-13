@@ -1,85 +1,149 @@
-import React from 'react';
-import { AlertTriangle, Info, CheckCircle, FileWarning } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronRight, ArrowUpRight, Check, AlertCircle } from 'lucide-react';
+import FlagDetailSheet from './FlagDetailSheet';
 
-export default function ReviewFlagsDashboard({ flags, setFlags }) {
+const API_BASE = 'http://localhost:8000';
+
+export default function ReviewFlagsDashboard({ 
+  flags, 
+  setFlags, 
+  language = 'English',
+  onOpenDocumentViewer 
+}) {
+  const [selectedFlag, setSelectedFlag] = useState(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const isHindi = language === 'Hindi';
+
   if (!flags || flags.length === 0) return null;
 
-  const handleStatusChange = (id, status) => {
+  const handleOpenFlag = (flag) => {
+    setSelectedFlag(flag);
+    setIsSheetOpen(true);
+  };
+
+  const handleCloseSheet = () => {
+    setIsSheetOpen(false);
+  };
+
+  const handleStatusChange = async (id, status) => {
+    // Optimistic update
     setFlags(flags.map(f => f.id === id ? { ...f, status } : f));
+    if (selectedFlag && selectedFlag.id === id) {
+      setSelectedFlag(prev => ({ ...prev, status }));
+    }
+
+    try {
+      await fetch(`${API_BASE}/api/reviews/${id}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, note: `Status updated by user to ${status}` })
+      });
+    } catch (err) {
+      console.warn('Backend status update failed, state preserved locally:', err);
+    }
   };
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold text-slate-800 flex items-center">
-        <AlertTriangle className="h-5 w-5 text-amber-500 mr-2" />
-        Stewardship Review Flags
-      </h2>
-      
-      {flags.map((flag) => (
-        <div key={flag.id} className={`p-4 rounded-lg border shadow-sm ${flag.priority === 'high' ? 'bg-rose-50 border-rose-200' : 'bg-amber-50 border-amber-200'}`}>
-          <div className="flex justify-between items-start mb-2">
-            <h3 className={`font-semibold text-lg ${flag.priority === 'high' ? 'text-rose-800' : 'text-amber-800'}`}>
-              {flag.rationale}
-            </h3>
-            <span className={`px-2 py-1 text-xs font-bold uppercase rounded ${flag.priority === 'high' ? 'bg-rose-200 text-rose-800' : 'bg-amber-200 text-amber-800'}`}>
-              {flag.priority}
-            </span>
-          </div>
-          
-          <div className="mt-3 space-y-3">
-            <div className="bg-white p-3 rounded border border-slate-200 text-sm">
-              <strong className="text-slate-700 flex items-center mb-1"><FileWarning className="h-4 w-4 mr-1 text-slate-500"/> Patient Evidence:</strong>
-              <p className="text-slate-600">{flag.patient_evidence}</p>
-            </div>
-            
-            <div className="bg-white p-3 rounded border border-slate-200 text-sm">
-              <strong className="text-slate-700 flex items-center mb-1"><Info className="h-4 w-4 mr-1 text-blue-500"/> Guideline Guidance:</strong>
-              <p className="text-slate-600">{flag.guideline_evidence}</p>
-            </div>
-          </div>
+    <div className="space-y-6 text-left">
+      {/* Section Header */}
+      <div className="space-y-1">
+        <h2 className="text-2xl sm:text-3xl font-light text-white tracking-tight">
+          What deserves attention
+        </h2>
+        <p className="text-xs text-sage-300/80 font-light max-w-xl">
+          DIYA identified information that may require pharmacist or clinician review.
+        </p>
+      </div>
 
-          <div className="mt-4 p-3 bg-slate-800 text-white rounded-md flex items-start">
-            <HelpCircleIcon className="h-5 w-5 text-emerald-400 mr-2 shrink-0 mt-0.5" />
-            <p className="font-medium text-sm leading-relaxed">{flag.clinician_question}</p>
-          </div>
+      {/* Vertical List with Generous Whitespace */}
+      <div className="space-y-4 pt-2">
+        {flags.map((flag, idx) => {
+          const num = String(idx + 1).padStart(2, '0');
+          const isHigh = flag.priority === 'high';
+          const isAttention = flag.type?.includes('gap') || flag.type?.includes('allergy') || flag.type?.includes('clarification');
+          const isReviewed = flag.status === 'reviewed';
 
-          <div className="mt-4 flex space-x-2 border-t pt-3 border-slate-200/50">
-            <button 
-              onClick={() => handleStatusChange(flag.id, 'reviewed')}
-              className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${flag.status === 'reviewed' ? 'bg-emerald-100 text-emerald-700' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-300'}`}
+          const badgeLabel = isHigh ? 'HIGH' : isAttention ? 'ATTENTION' : 'REVIEW';
+          const badgeStyle = isHigh 
+            ? 'text-rose-400 border-rose-500/30 bg-rose-950/40'
+            : isAttention 
+              ? 'text-amber-400 border-amber-500/30 bg-amber-950/40'
+              : 'text-emerald-400 border-emerald-500/30 bg-emerald-950/40';
+
+          const rationaleText = (isHindi && flag.rationale_hi) ? flag.rationale_hi : flag.rationale;
+
+          // Simplify title display for the Apple aesthetic
+          const rawTitle = flag.title || flag.rationale || 'Stewardship Review';
+          const cleanTitle = String(rawTitle)
+            .replace(' requires review', '')
+            .replace(' is unverified (UNKNOWN vs NEGATIVE)', '')
+            .replace(' recency (>48 hours) exceeded', '');
+
+          const statusSubtitle = isHigh 
+            ? 'Review required' 
+            : isAttention 
+              ? 'Incomplete information' 
+              : 'Confirmation required';
+
+          return (
+            <div
+              key={flag.id || idx}
+              onClick={() => handleOpenFlag(flag)}
+              className="rounded-3xl glass-surface p-7 sm:p-8 border border-white/8 hover:border-emerald-500/30 transition-all duration-300 cursor-pointer group shadow-glass relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
             >
-              Mark Reviewed
-            </button>
-            <button 
-              onClick={() => handleStatusChange(flag.id, 'escalated')}
-              className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${flag.status === 'escalated' ? 'bg-indigo-100 text-indigo-700' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-300'}`}
-            >
-              Escalate to ID
-            </button>
-          </div>
-        </div>
-      ))}
+              {/* Left Column: Number + Content */}
+              <div className="flex items-start space-x-6">
+                <span className="text-2xl font-light font-mono text-sage-500 group-hover:text-emerald-400/80 transition-colors shrink-0">
+                  {num}
+                </span>
+
+                <div className="space-y-1.5 max-w-xl">
+                  <div className="flex items-center space-x-3">
+                    <h3 className="text-base sm:text-lg font-normal text-white group-hover:text-emerald-200 transition-colors">
+                      {cleanTitle}
+                    </h3>
+                  </div>
+
+                  <p className="text-xs font-mono uppercase tracking-wider text-sage-400/90">
+                    {statusSubtitle}
+                  </p>
+
+                  <p className="text-xs text-sage-300/80 font-light leading-relaxed pt-1">
+                    {rationaleText}
+                  </p>
+                </div>
+              </div>
+
+              {/* Right Column: Priority Badge + Arrow */}
+              <div className="flex items-center space-x-4 shrink-0 sm:self-center self-end">
+                {flag.status && flag.status !== 'open' && (
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-sage-400 border border-white/10 px-2 py-0.5 rounded-full">
+                    {flag.status.replace('_', ' ')}
+                  </span>
+                )}
+
+                <span className={`text-[10px] font-mono tracking-widest px-3 py-1 rounded-full border uppercase ${badgeStyle}`}>
+                  {badgeLabel}
+                </span>
+
+                <div className="w-8 h-8 rounded-full bg-white/5 group-hover:bg-white/10 flex items-center justify-center text-sage-400 group-hover:text-white transition-all">
+                  <ChevronRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Side Sheet for Detailed Review */}
+      <FlagDetailSheet
+        flag={selectedFlag}
+        isOpen={isSheetOpen}
+        onClose={handleCloseSheet}
+        onUpdateStatus={handleStatusChange}
+        language={language}
+        onOpenDocumentViewer={onOpenDocumentViewer}
+      />
     </div>
   );
-}
-
-function HelpCircleIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-      <path d="M12 17h.01" />
-    </svg>
-  )
 }

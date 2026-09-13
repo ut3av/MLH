@@ -1,34 +1,140 @@
 import React from 'react';
-import { Shield, HelpCircle } from 'lucide-react';
+import { ShieldCheck, User, LogOut, BookOpen, Layers, Activity, Users } from 'lucide-react';
 
-export default function Navbar({ demoMode, setDemoMode, onHelpClick }) {
+export default function Navbar({ 
+  currentTab, 
+  setCurrentTab, 
+  user, 
+  onLogout,
+  language,
+  setLanguage,
+  onNewReviewClick
+}) {
   return (
-    <nav className="bg-slate-900 text-white shadow-lg">
+    <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-200 text-slate-900 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          <div className="flex items-center">
-            <Shield className="h-8 w-8 text-emerald-400 mr-3" />
+          
+          {/* Left Brand Identity */}
+          <div 
+            className="flex items-center space-x-3 cursor-pointer"
+            onClick={() => setCurrentTab('dashboard')}
+          >
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shadow-2xs">
+              <ShieldCheck className="w-4 h-4 stroke-[2]" />
+            </div>
+            
             <div>
-              <h1 className="text-xl font-bold tracking-tight">AMR-Guard</h1>
-              <p className="text-xs text-slate-400 hidden sm:block">Antimicrobial Rationalization & WHO AWaRe Clinical Decision Support</p>
+              <div className="flex items-center space-x-2">
+                <span className="text-base font-bold tracking-tight text-slate-900">
+                  DIYA
+                </span>
+                <span className="text-[10px] uppercase font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                  Hospital AMS
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 font-normal hidden sm:block">
+                Diagnostic Intelligence &amp; Antibiotic Review Assistant
+              </p>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-slate-300">Demo Mode</span>
-              <button 
-                onClick={() => setDemoMode(!demoMode)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${demoMode ? 'bg-emerald-500' : 'bg-slate-600'}`}
+
+          {/* Navigation Links */}
+          <nav className="hidden md:flex items-center space-x-1 text-xs font-semibold text-slate-600">
+            <button
+              onClick={() => setCurrentTab('dashboard')}
+              className={`px-3 py-2 rounded-lg transition-colors ${
+                currentTab === 'dashboard' || currentTab === 'review' 
+                  ? 'text-emerald-700 bg-emerald-50' 
+                  : 'hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              Reviews
+            </button>
+            <button
+              onClick={() => setCurrentTab('patients')}
+              className={`px-3 py-2 rounded-lg transition-colors ${
+                currentTab === 'patients' 
+                  ? 'text-emerald-700 bg-emerald-50' 
+                  : 'hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              Patients
+            </button>
+            <button
+              onClick={() => setCurrentTab('guidelines')}
+              className={`px-3 py-2 rounded-lg transition-colors ${
+                currentTab === 'guidelines' 
+                  ? 'text-emerald-700 bg-emerald-50' 
+                  : 'hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              Guidelines
+            </button>
+            <button
+              onClick={() => setCurrentTab('activity')}
+              className={`px-3 py-2 rounded-lg transition-colors ${
+                currentTab === 'activity' 
+                  ? 'text-emerald-700 bg-emerald-50' 
+                  : 'hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              Activity
+            </button>
+          </nav>
+
+          {/* Right User Controls */}
+          <div className="flex items-center space-x-3">
+            
+            {/* Language Toggle (EN | HI) */}
+            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-semibold">
+              <button
+                onClick={() => setLanguage('English')}
+                className={`px-2 py-1 rounded-md transition-all ${
+                  language === 'English'
+                    ? 'bg-white text-slate-900 shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
               >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${demoMode ? 'translate-x-6' : 'translate-x-1'}`} />
+                EN
+              </button>
+              <button
+                onClick={() => setLanguage('Hindi')}
+                className={`px-2 py-1 rounded-md transition-all ${
+                  language === 'Hindi'
+                    ? 'bg-white text-slate-900 shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                HI
               </button>
             </div>
-            <button onClick={onHelpClick} className="text-slate-300 hover:text-white">
-              <HelpCircle className="h-6 w-6" />
-            </button>
+
+            {/* User Profile Pill */}
+            <div className="flex items-center space-x-2 text-xs font-medium text-slate-700 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+              <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-slate-600">
+                <User className="w-3 h-3" />
+              </div>
+              <span className="hidden sm:inline">Dr. Sharma</span>
+              <span className="text-slate-400 text-[10px]">|</span>
+              <span className="text-[11px] text-slate-500 hidden md:inline">Pharmacist</span>
+            </div>
+
+            {/* Sign out */}
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                title="Sign out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            )}
+
           </div>
+
         </div>
       </div>
-    </nav>
+    </header>
   );
 }
