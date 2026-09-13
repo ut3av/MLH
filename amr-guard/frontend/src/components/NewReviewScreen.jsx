@@ -208,7 +208,8 @@ export default function NewReviewScreen({
       infection_site: infectionSite,
       user_role: 'Hospital Pharmacist',
       language,
-      files: attachedFiles
+      files: attachedFiles,
+      extractedFacts: extractedFactsPreview
     });
   };
 
