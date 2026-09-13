@@ -5,7 +5,11 @@ import {
 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
-export default function PrescriptionHistoryPage({ onSelectPatient, language = 'English' }) {
+export default function PrescriptionHistoryPage({ 
+  onSelectPatient, 
+  language = 'English',
+  isFreshUser = false 
+}) {
   const [prescriptions, setPrescriptions] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
@@ -23,7 +27,7 @@ export default function PrescriptionHistoryPage({ onSelectPatient, language = 'E
   const loadPrescriptions = async () => {
     setIsLoading(true);
     try {
-      const data = await supabase.getPrescriptions();
+      const data = await supabase.getPrescriptions(undefined, isFreshUser);
       setPrescriptions(data);
     } catch (e) {
       console.warn('Failed to load prescriptions:', e);
@@ -34,7 +38,7 @@ export default function PrescriptionHistoryPage({ onSelectPatient, language = 'E
 
   useEffect(() => {
     loadPrescriptions();
-  }, []);
+  }, [isFreshUser]);
 
   const handleCreatePrescription = async (e) => {
     e.preventDefault();
@@ -161,24 +165,41 @@ export default function PrescriptionHistoryPage({ onSelectPatient, language = 'E
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
-              {filteredPrescriptions.map((rx) => (
-                <tr key={rx.id} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
-                    <span 
-                      onClick={() => onSelectPatient && onSelectPatient(rx.patient_alias === 'PT-1042' ? 'demo1' : rx.patient_alias === 'PT-1039' ? 'demo2' : 'demo3')}
-                      className="cursor-pointer hover:underline text-slate-900"
-                    >
-                      {rx.patient_alias}
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4 font-semibold text-slate-900">
-                    <div className="flex items-center space-x-2">
-                      <span>{rx.drug_name}</span>
-                      <span className="text-[11px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
-                        {rx.dosage}
-                      </span>
+              {filteredPrescriptions.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="py-12 px-4 text-center">
+                    <div className="max-w-sm mx-auto space-y-3">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200/80">
+                        <FileText className="w-6 h-6" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-slate-800">No Prescriptions Logged Yet</p>
+                        <p className="text-xs text-slate-500">
+                          Your clinical prescription record is fresh and empty. Upload patient prescriptions or record a new regimen above.
+                        </p>
+                      </div>
                     </div>
                   </td>
+                </tr>
+              ) : (
+                filteredPrescriptions.map((rx) => (
+                  <tr key={rx.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
+                      <span 
+                        onClick={() => onSelectPatient && onSelectPatient(rx.patient_alias === 'PT-1042' ? 'demo1' : rx.patient_alias === 'PT-1039' ? 'demo2' : 'demo3')}
+                        className="cursor-pointer hover:underline text-slate-900"
+                      >
+                        {rx.patient_alias}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4 font-semibold text-slate-900">
+                      <div className="flex items-center space-x-2">
+                        <span>{rx.drug_name}</span>
+                        <span className="text-[11px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                          {rx.dosage}
+                        </span>
+                      </div>
+                    </td>
                   <td className="py-3.5 px-4 font-mono text-slate-600">
                     {rx.route} · {rx.frequency}
                   </td>
@@ -215,7 +236,7 @@ export default function PrescriptionHistoryPage({ onSelectPatient, language = 'E
                     </button>
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>

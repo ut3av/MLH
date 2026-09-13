@@ -62,7 +62,15 @@ class SupabaseService {
     return null;
   }
 
-  async getPatients() {
+  async getPatients(isFreshUser = false) {
+    if (isFreshUser) {
+      // Check localStorage for user-added patients
+      try {
+        const saved = localStorage.getItem('diya_user_patients');
+        if (saved) return JSON.parse(saved);
+      } catch (e) {}
+      return [];
+    }
     try {
       const res = await fetch('/api/patients');
       if (res.ok) return await res.json();
@@ -117,7 +125,14 @@ class SupabaseService {
     ];
   }
 
-  async getPrescriptions(patientAlias) {
+  async getPrescriptions(patientAlias, isFreshUser = false) {
+    if (isFreshUser) {
+      try {
+        const saved = localStorage.getItem('diya_user_prescriptions');
+        if (saved) return JSON.parse(saved);
+      } catch (e) {}
+      return [];
+    }
     try {
       const url = patientAlias 
         ? `/api/prescriptions?patient_alias=${encodeURIComponent(patientAlias)}`
@@ -176,6 +191,26 @@ class SupabaseService {
     ];
   }
 
+  async addPatient(patient) {
+    try {
+      const res = await fetch('/api/patients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patient)
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {}
+    
+    // Save to local user patients store
+    try {
+      const current = JSON.parse(localStorage.getItem('diya_user_patients') || '[]');
+      const updated = [patient, ...current.filter(p => p.patient_alias !== patient.patient_alias)];
+      localStorage.setItem('diya_user_patients', JSON.stringify(updated));
+    } catch (e) {}
+
+    return { id: `pt-${Date.now()}`, ...patient, created_at: new Date().toISOString() };
+  }
+
   async addPrescription(payload) {
     try {
       const res = await fetch('/api/prescriptions', {
@@ -187,6 +222,13 @@ class SupabaseService {
     } catch (e) {
       console.warn('Save prescription note:', e);
     }
+
+    try {
+      const current = JSON.parse(localStorage.getItem('diya_user_prescriptions') || '[]');
+      const updated = [payload, ...current];
+      localStorage.setItem('diya_user_prescriptions', JSON.stringify(updated));
+    } catch (e) {}
+
     return { id: `rx-${Date.now()}`, ...payload, created_at: new Date().toISOString() };
   }
 }

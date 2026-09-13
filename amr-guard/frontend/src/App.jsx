@@ -14,6 +14,7 @@ import AnalysisProgressModal from './components/AnalysisProgressModal';
 import DocumentViewerModal from './components/DocumentViewerModal';
 import ShowcaseLandingPage from './components/ShowcaseLandingPage';
 import { ArrowLeft, ShieldCheck, Eye, FileText, CheckCircle2 } from 'lucide-react';
+import { supabase } from './supabaseClient';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'https://diyaaa.onrender.com';
 
@@ -21,6 +22,7 @@ function App() {
   // Authentication State: Initially unauthenticated
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userSession, setUserSession] = useState(null);
+  const [isFreshUser, setIsFreshUser] = useState(false);
 
   // Clinical Navigation Tab: 'landing' | 'login' | 'dashboard' | 'new_review' | 'review' | 'export' | 'patients' | 'prescriptions' | 'guidelines' | 'activity'
   const [currentTab, setCurrentTab] = useState('landing');
@@ -62,12 +64,14 @@ function App() {
   const handleLogin = (user) => {
     setUserSession(user);
     setIsAuthenticated(true);
+    setIsFreshUser(Boolean(user?.isFreshRegistration));
     setCurrentTab('dashboard');
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
     setUserSession(null);
+    setIsFreshUser(false);
     setCurrentTab('landing');
   };
 
@@ -224,6 +228,36 @@ function App() {
       }
     });
 
+    // Save user's newly analyzed patient into database/local record
+    const patientAlias = casePayload.patient_alias || 'PT-NEW';
+    try {
+      supabase.addPatient({
+        patient_alias: patientAlias,
+        age: casePayload.age || '62',
+        sex: casePayload.sex || 'Male',
+        ward: casePayload.ward || 'Inpatient Ward',
+        infection_site: casePayload.infection_site || 'Bloodstream (Bacteremia)',
+        organism_isolated: organism,
+        current_antibiotic: currentDrugStr,
+        status: 'Review required'
+      });
+
+      supabase.addPrescription({
+        patient_alias: patientAlias,
+        drug_name: recAntibiotic.drug_name,
+        dosage: recAntibiotic.dosage,
+        frequency: recAntibiotic.frequency,
+        route: recAntibiotic.route,
+        indication: casePayload.infection_site || 'Targeted de-escalation',
+        status: 'Active',
+        prescribing_doctor: userSession?.email || 'Dr. (Attending)',
+        source_type: 'Gemini OCR Extraction',
+        gemini_extracted_notes: recAntibiotic.clinical_rationale
+      });
+    } catch (e) {
+      console.warn('Patient save notice:', e);
+    }
+
     setIsAnalyzingModalOpen(true);
   };
 
@@ -307,6 +341,7 @@ function App() {
                 onStartNewReview={() => setCurrentTab('new_review')}
                 onSelectCase={handleSelectCase}
                 language={language}
+                isFreshUser={isFreshUser}
               />
             )}
 
@@ -387,6 +422,7 @@ function App() {
             {currentTab === 'patients' && (
               <PatientsListPage
                 onSelectPatient={handleSelectCase}
+                isFreshUser={isFreshUser}
               />
             )}
 
@@ -395,6 +431,7 @@ function App() {
               <PrescriptionHistoryPage
                 onSelectPatient={handleSelectCase}
                 language={language}
+                isFreshUser={isFreshUser}
               />
             )}
 

@@ -31,6 +31,12 @@ export default function LoginScreen({ onLogin, onBackToShowcase }) {
     try {
       if (isSignUp) {
         setStatusMessage('Creating Supabase user account...');
+        // Clear any previous session demo data for fresh experience
+        try {
+          localStorage.removeItem('diya_user_patients');
+          localStorage.removeItem('diya_user_prescriptions');
+        } catch (e) {}
+
         // Actual Supabase Registration
         try {
           const authData = await supabase.signUp({
@@ -43,7 +49,8 @@ export default function LoginScreen({ onLogin, onBackToShowcase }) {
             email: cleanEmail,
             hospital: cleanHospital,
             role,
-            id: authData?.user?.id
+            id: authData?.user?.id,
+            isFreshRegistration: true
           });
         } catch (authErr) {
           // If Supabase returns an error (e.g. user already exists), show or fallback
@@ -56,7 +63,8 @@ export default function LoginScreen({ onLogin, onBackToShowcase }) {
           onLogin({
             email: cleanEmail,
             hospital: cleanHospital,
-            role
+            role,
+            isFreshRegistration: true
           });
         }
       } else {
