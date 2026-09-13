@@ -1,0 +1,122 @@
+{
+  "amr-guard/backend/aware_data.py": {
+    "mtime": 1789278177.2432854,
+    "seen": 1789278843.258631,
+    "ast_hash": "b7802e2b3c1869ebb125c9c95e924b3f",
+    "semantic_hash": "b7802e2b3c1869ebb125c9c95e924b3f"
+  },
+  "amr-guard/backend/main.py": {
+    "mtime": 1789278177.2432854,
+    "seen": 1789278843.258635,
+    "ast_hash": "b0544e4dcde140061aaa768790061131",
+    "semantic_hash": "b0544e4dcde140061aaa768790061131"
+  },
+  "amr-guard/backend/rag_knowledge_base.py": {
+    "mtime": 1789278177.2432854,
+    "seen": 1789278843.2586367,
+    "ast_hash": "dd22ba84ff1c9fa6dd3f6d551faa1dea",
+    "semantic_hash": "dd22ba84ff1c9fa6dd3f6d551faa1dea"
+  },
+  "amr-guard/backend/schemas.py": {
+    "mtime": 1789278177.2432854,
+    "seen": 1789278843.258638,
+    "ast_hash": "44bdf385545760dfdabafa6bcfef00ff",
+    "semantic_hash": "44bdf385545760dfdabafa6bcfef00ff"
+  },
+  "amr-guard/frontend/.oxlintrc.json": {
+    "mtime": 1789278177.2432854,
+    "seen": 1789278843.2586386,
+    "ast_hash": "2d750bd852cf8fe072f64a62ab29084b",
+    "semantic_hash": "2d750bd852cf8fe072f64a62ab29084b"
+  },
+  "amr-guard/frontend/package.json": {
+    "mtime": 1789278177.2432854,
+    "seen": 1789278843.258639,
+    "ast_hash": "a6ad41aaf6055dacfd1822582ed8f66a",
+    "semantic_hash": "a6ad41aaf6055dacfd1822582ed8f66a"
+  },
+  "amr-guard/frontend/postcss.config.js": {
+    "mtime": 1789278177.2432854,
+    "seen": 1789278843.2586398,
+    "ast_hash": "5b84f4567208c7c747079c0477373231",
+    "semantic_hash": "5b84f4567208c7c747079c0477373231"
+  },
+  "amr-guard/frontend/src/App.jsx": {
+    "mtime": 1789278177.2432854,
+    "seen": 1789278843.2586405,
+    "ast_hash": "a3b50c1fc2993580aa9907f1b09f4496",
+    "semantic_hash": "a3b50c1fc2993580aa9907f1b09f4496"
+  },
+  "amr-guard/frontend/src/components/DropZone.jsx": {
+    "mtime": 1789278177.2432854,
+    "seen": 1789278843.2586415,
+    "ast_hash": "73b90aa72d31abcb3a994214a5fd5aea",
+    "semantic_hash": "73b90aa72d31abcb3a994214a5fd5aea"
+  },
+  "amr-guard/frontend/src/components/ExportReviewCard.jsx": {
+    "mtime": 1789278177.2432854,
+    "seen": 1789278843.2586422,
+    "ast_hash": "e1bbeef54c0c10364585cd984211bc72",
+    "semantic_hash": "e1bbeef54c0c10364585cd984211bc72"
+  },
+  "amr-guard/frontend/src/components/MultiDocumentUpload.jsx": {
+    "mtime": 1789278177.2432854,
+    "seen": 1789278843.2586427,
+    "ast_hash": "e8ff234ab17e75698f0207618cf8c82f",
+    "semantic_hash": "e8ff234ab17e75698f0207618cf8c82f"
+  },
+  "amr-guard/frontend/src/components/Navbar.jsx": {
+    "mtime": 1789278177.2432854,
+    "seen": 1789278843.2586436,
+    "ast_hash": "5618a3341561fa49de084360199e1025",
+    "semantic_hash": "5618a3341561fa49de084360199e1025"
+  },
+  "amr-guard/frontend/src/components/PatientSummaryPanel.jsx": {
+    "mtime": 1789278177.2432854,
+    "seen": 1789278843.2586443,
+    "ast_hash": "16bb0b45b93af05ac3295671ac91bb59",
+    "semantic_hash": "16bb0b45b93af05ac3295671ac91bb59"
+  },
+  "amr-guard/frontend/src/components/ReviewFlagsDashboard.jsx": {
+    "mtime": 1789278177.2432854,
+    "seen": 1789278843.2586448,
+    "ast_hash": "120248a6c7ef232c17805df4638d400a",
+    "semantic_hash": "120248a6c7ef232c17805df4638d400a"
+  },
+  "amr-guard/frontend/src/main.jsx": {
+    "mtime": 1789278177.2432854,
+    "seen": 1789278843.2586455,
+    "ast_hash": "51fd21c378330142b61bf8d1ef3795ef",
+    "semantic_hash": "51fd21c378330142b61bf8d1ef3795ef"
+  },
+  "amr-guard/frontend/src/mockData/sampleReports.js": {
+    "mtime": 1789278177.2586658,
+    "seen": 1789278843.2586462,
+    "ast_hash": "df83f1fdfc75513cea2484c99572e764",
+    "semantic_hash": "df83f1fdfc75513cea2484c99572e764"
+  },
+  "amr-guard/frontend/tailwind.config.js": {
+    "mtime": 1789278177.259674,
+    "seen": 1789278843.258647,
+    "ast_hash": "9afb21cebd97d1d0507d3a6067926a05",
+    "semantic_hash": "9afb21cebd97d1d0507d3a6067926a05"
+  },
+  "amr-guard/frontend/vite.config.js": {
+    "mtime": 1789278177.259674,
+    "seen": 1789278843.2586474,
+    "ast_hash": "9331e7d7740bf0286a7f5666477715da",
+    "semantic_hash": "9331e7d7740bf0286a7f5666477715da"
+  },
+  "README.md": {
+    "mtime": 1789278177.2432854,
+    "seen": 1789278843.2586484,
+    "ast_hash": "b05e04d8cdb36ec71aebf73b846e96ef",
+    "semantic_hash": "b05e04d8cdb36ec71aebf73b846e96ef"
+  },
+  "amr-guard/README.md": {
+    "mtime": 1789278177.2432854,
+    "seen": 1789278843.2586489,
+    "ast_hash": "133abc831cc1f027f21b81399e89a6e8",
+    "semantic_hash": "133abc831cc1f027f21b81399e89a6e8"
+  }
+}
