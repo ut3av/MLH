@@ -13,6 +13,10 @@
 
 [Live Demo](https://diyaaa.onrender.com) · [API Documentation](https://diyaaa.onrender.com/docs) · [Report Bug](https://github.com/ut3av/MLH/issues)
 
+<br />
+
+<img src="amr-guard/frontend/public/diya-overview-hero.png" alt="DIYA Web Layout & Clinical Workstation Overview" width="100%" style="border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.1);" />
+
 </div>
 
 ---
