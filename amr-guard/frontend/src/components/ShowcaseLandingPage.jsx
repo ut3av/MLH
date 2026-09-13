@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowRight, ShieldCheck, Play, FileText, CheckCircle2, 
   Activity, ChevronRight, BookOpen, Layers, Users, 
-  Clock, Award, Stethoscope, FileCheck
+  Clock, Award, Stethoscope, FileCheck, Sparkles, ChevronDown, 
+  HelpCircle, Check, Scan, Eye, HeartHandshake, Lock, Zap
 } from 'lucide-react';
 
 export default function ShowcaseLandingPage({ 
@@ -11,505 +12,430 @@ export default function ShowcaseLandingPage({
   language = 'English', 
   setLanguage 
 }) {
-  const [activeTabInCard, setActiveTabInCard] = useState('summary'); // 'summary' | 'evidence' | 'guidelines'
+  const [openFaq, setOpenFaq] = useState(null);
+  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
+  const [isHovering, setIsHovering] = useState(false);
   const isHindi = language === 'Hindi';
 
-  return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 selection:bg-slate-200 selection:text-slate-900 font-sans antialiased relative overflow-x-hidden">
-      
-      {/* Soft Ambient Light Gradient Background (Liquid Glassmorphism) */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-blue-100/50 via-indigo-50/30 to-transparent rounded-full blur-3xl" />
-        <div className="absolute top-[600px] -left-40 w-[600px] h-[600px] bg-slate-200/40 rounded-full blur-3xl" />
-        <div className="absolute top-[800px] -right-40 w-[600px] h-[600px] bg-emerald-100/30 rounded-full blur-3xl" />
-      </div>
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+      if (!isHovering) setIsHovering(true);
+    };
 
-      {/* SECTION 1: HERO CONTAINER (Strict Light Theme) */}
-      <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-16 text-center">
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [isHovering]);
+
+  const toggleFaq = (idx) => {
+    setOpenFaq(prev => prev === idx ? null : idx);
+  };
+
+  const faqs = [
+    {
+      q: "How does DIYA's Gemini OCR read handwritten doctor prescriptions?",
+      a: "DIYA leverages Google Gemini 2.5 Flash's multimodal vision engine to scan, segment, and transcribe medical handwriting, trade names, dosage notations (TDS, BD, OD), and microbiological AST reports with high clinical precision."
+    },
+    {
+      q: "How does DIYA determine the correct antibiotic recommendation?",
+      a: "DIYA cross-references the isolated organism and susceptibility matrix against ICMR 2024 Antimicrobial Guidelines and WHO AWaRe tiers. If a patient is on broad-spectrum reserve agents (e.g. Meropenem) while narrower first-line agents are susceptible, DIYA surfaces a targeted de-escalation plan tailored to the patient's renal clearance and allergies."
+    },
+    {
+      q: "Can DIYA prescribe medications automatically?",
+      a: "No. DIYA is strictly a clinical decision-support assistant. All extracted data, renal warnings, and antibiotic recommendations must be reviewed and signed off by a qualified clinician or hospital pharmacist."
+    },
+    {
+      q: "Is patient health information (PHI) protected?",
+      a: "Yes. All prescriptions and audit tracks are encrypted and stored in your dedicated Supabase database with Row Level Security (RLS) and HIPAA-compliant access controls."
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#FAF9F5] text-[#171717] selection:bg-emerald-100 selection:text-emerald-900 font-sans antialiased relative overflow-x-hidden">
+      
+      {/* Interactive Cursor Spotlight Glow */}
+      <div 
+        className="cursor-glow transition-opacity duration-500"
+        style={{
+          left: `${mousePos.x}px`,
+          top: `${mousePos.y}px`,
+          opacity: isHovering ? 1 : 0
+        }}
+      />
+
+      {/* Decorative Floating SVG Icons with animated mouse parallax effect */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
         
-        {/* Modern Pill Tag */}
-        <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-xl border border-slate-200/80 shadow-xs mb-8 text-[11px] font-medium tracking-wide text-slate-600 uppercase">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
-          <span>{isHindi ? 'रोगाणुरोधी प्रबंधन एवं नैदानिक निर्णय समर्थन' : 'Antimicrobial Stewardship & Clinical Decision Support'}</span>
+        {/* Modern Medical Prescription Graphic (Top Right) */}
+        <div 
+          className="absolute top-20 right-8 lg:right-28 opacity-25 animate-float-slow transition-transform duration-700 ease-out"
+          style={{
+            transform: `translate(${mousePos.x * 0.015}px, ${mousePos.y * 0.015}px)`
+          }}
+        >
+          <svg width="220" height="260" viewBox="0 0 220 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="10" width="200" height="240" rx="20" fill="white" stroke="#206E55" strokeWidth="1.5" strokeDasharray="4 4" />
+            <path d="M40 50H120" stroke="#206E55" strokeWidth="3" strokeLinecap="round"/>
+            <path d="M40 70H180" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
+            <path d="M40 90H150" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
+            <circle cx="160" cy="180" r="30" fill="#E8F5E9" stroke="#206E55" strokeWidth="1.5" />
+            <path d="M150 180H170M160 170V190" stroke="#206E55" strokeWidth="2.5" strokeLinecap="round"/>
+          </svg>
         </div>
 
-        {/* Master Headline: No logo, only pure modern typography */}
-        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-normal tracking-tight text-slate-900 leading-[1.08] mb-6 max-w-4xl mx-auto">
+        {/* Antimicrobial Capsule & DNA SVG (Left Middle) */}
+        <div 
+          className="absolute top-96 -left-6 lg:left-12 opacity-20 animate-float-delayed transition-transform duration-700 ease-out"
+          style={{
+            transform: `translate(${-mousePos.x * 0.02}px, ${-mousePos.y * 0.02}px)`
+          }}
+        >
+          <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="40" y="30" width="100" height="40" rx="20" transform="rotate(45 40 30)" fill="#206E55" fillOpacity="0.15" stroke="#206E55" strokeWidth="1.5" />
+            <circle cx="90" cy="90" r="60" stroke="#CBD5E1" strokeWidth="1" strokeDasharray="6 6" />
+            <circle cx="130" cy="50" r="8" fill="#10B981" fillOpacity="0.4" />
+            <circle cx="50" cy="130" r="6" fill="#3B82F6" fillOpacity="0.4" />
+          </svg>
+        </div>
+
+        {/* Micro-dot ambient grid */}
+        <svg className="absolute inset-0 w-full h-full opacity-35" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="dot-pattern" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" fill="#206E55" fillOpacity="0.12" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#dot-pattern)" />
+        </svg>
+      </div>
+
+      {/* SECTION 1: HERO CONTAINER (Clean, Minimalist, Animated Interactive Cards) */}
+      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center">
+        
+        {/* Modern Pill Tag with Hover Pulse */}
+        <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-white/95 backdrop-blur-xl border border-emerald-900/10 shadow-xs mb-8 text-[11px] font-medium tracking-wide text-emerald-900 uppercase transition-transform hover:scale-105 duration-300 cursor-default">
+          <span className="w-2 h-2 rounded-full bg-emerald-600 animate-ping" />
+          <span>Multimodal Prescription OCR &amp; Antimicrobial Stewardship</span>
+        </div>
+
+        {/* Master Headline: Archivo/Geist styled typography */}
+        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-light tracking-tight text-[#002E25] leading-[1.08] mb-6 max-w-4xl mx-auto">
           {isHindi ? (
-            <>हर एंटीबायोटिक निर्णय <span className="font-semibold text-slate-900">प्रमाणित हाथों में</span></>
+            <>हर पर्चा पढ़ें। <span className="font-semibold text-emerald-900">सही एंटीबायोटिक चुनें।</span></>
           ) : (
-            <>Every antibiotic decision in <span className="font-semibold text-slate-900">trusted hands</span></>
+            <>Stop guessing what the doctor wrote. <span className="font-semibold text-emerald-950 block sm:inline">Choose the right antibiotic.</span></>
           )}
         </h1>
 
         {/* Subtitle Description */}
         <p className="max-w-2xl mx-auto text-base sm:text-lg text-slate-600 font-normal leading-relaxed mb-10">
-          {isHindi
-            ? 'दीया (DIYA) बिखरी हुई प्रयोगशाला रिपोर्टों, रोगाणुरोधी संवेदनशीलता परीक्षणों और राष्ट्रीय दिशानिर्देशों को एक साक्ष्य-आधारित नैदानिक समीक्षा में जोड़ता है। एआई साक्ष्य की जांच करता है। अंतिम निर्णय चिकित्सक लेते हैं।'
-            : 'DIYA unifies fragmented blood cultures, antimicrobial susceptibility reports, renal clearance markers, and ICMR stewardship guidelines into an evidence-grounded clinical review. AI cross-checks the evidence. Healthcare professionals make the decision.'}
+          DIYA uses Google Gemini 2.5 Flash vision to read doctor prescriptions and AST lab reports, cross-referencing patient organ function against ICMR 2024 and WHO AWaRe guidelines to surface precise antibiotic recommendations.
         </p>
 
-        {/* Call to Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 mb-16">
+        {/* Primary Call to Action */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
           <button
             onClick={onLaunchPortal}
-            className="w-full sm:w-auto px-7 py-3 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs sm:text-sm tracking-wide shadow-sm shadow-slate-900/10 transition-all transform hover:scale-[1.02] cursor-pointer flex items-center justify-center space-x-2"
+            className="w-full sm:w-auto px-8 py-4 rounded-full bg-[#1C604D] hover:bg-[#164E3E] text-white font-medium text-sm tracking-wide shadow-lg shadow-emerald-950/15 transition-all transform hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center space-x-2.5 group"
           >
-            <span>Enter Clinical Workspace</span>
-            <ArrowRight className="w-4 h-4 text-slate-300" />
+            <span>Launch Clinical Reader</span>
+            <ArrowRight className="w-4 h-4 text-emerald-200 group-hover:translate-x-1 transition-transform" />
           </button>
 
           <button
-            onClick={() => onSelectCase && onSelectCase('demo1')}
-            className="w-full sm:w-auto px-6 py-3 rounded-full bg-white/90 hover:bg-white text-slate-700 hover:text-slate-900 font-medium text-xs sm:text-sm border border-slate-200/80 shadow-xs backdrop-blur-xl transition-all cursor-pointer flex items-center justify-center space-x-2"
+            onClick={onLaunchPortal}
+            className="w-full sm:w-auto px-7 py-4 rounded-full bg-white hover:bg-slate-50 text-slate-800 font-medium text-sm border border-slate-200 shadow-xs transition-all transform hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center space-x-2"
           >
-            <Activity className="w-4 h-4 text-slate-500" />
-            <span>Inspect Case PT-1042</span>
+            <Lock className="w-4 h-4 text-slate-400" />
+            <span>Hospital Staff Sign In</span>
           </button>
         </div>
 
-        {/* SECTION 2: APPLE LIQUID GLASS DUAL SHOWCASE CARDS (Inspired directly by Dribbble video) */}
-        <div className="text-left mb-6">
-          <h2 className="text-2xl sm:text-3xl font-light text-slate-900 tracking-tight">
-            Advanced clinical synthesis for every patient
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 font-normal mt-1">
-            Real-time cross-referencing between isolated pathogens, organ function, and clinical stewardship protocols.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 text-left">
-          
-          {/* LEFT CARD: Real-Time Microbial Evidence Dossier (7 Cols) */}
-          <div 
-            onClick={() => onSelectCase && onSelectCase('demo1')}
-            className="lg:col-span-7 rounded-[32px] bg-white/80 backdrop-blur-2xl border border-slate-200/80 p-8 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.05)] hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between relative overflow-hidden"
-          >
-            {/* Subtle background decoration */}
-            <div className="absolute -right-16 -bottom-16 w-64 h-64 rounded-full overflow-hidden opacity-15 pointer-events-none">
-              <img 
-                src="/images/hero-botanical-blue.jpg" 
-                alt="Botanical Accent" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-
-            <div className="space-y-4 relative z-10">
-              <div className="flex items-center space-x-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-                <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-800 font-semibold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                  Targeted De-escalation Candidate
-                </span>
-              </div>
-
-              <div>
-                <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 group-hover:text-emerald-900 transition-colors">
-                  Escherichia coli Bacteremia (PT-1042)
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 font-normal leading-relaxed mt-2 max-w-xl">
-                  Definitive blood culture confirms Ceftriaxone susceptibility. Empiric broad-spectrum Meropenem 1g IV TDS is eligible for de-escalation to preserve carbapenem longevity.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <div className="p-3.5 rounded-2xl bg-slate-50/90 border border-slate-200/60 text-xs space-y-1">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Culture Result</span>
-                  <p className="font-semibold text-slate-900">E. coli &gt;10^5 CFU/mL</p>
-                  <p className="text-[11px] text-emerald-700 font-medium">Ceftriaxone: Susceptible</p>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-slate-50/90 border border-slate-200/60 text-xs space-y-1">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Renal Clearance</span>
-                  <p className="font-semibold text-slate-900">CrCl 48 mL/min</p>
-                  <p className="text-[11px] text-slate-600">Standard de-escalation dose safe</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-700 mt-6 relative z-10">
-              <span className="text-slate-500 font-normal">ICU Bed 08 - Dr. Sharma</span>
-              <span className="inline-flex items-center space-x-1 text-emerald-800 group-hover:translate-x-1 transition-transform">
-                <span>Inspect Clinical Dossier</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </span>
-            </div>
+        {/* SECTION 2: THE 3-STEP FLOW CARD WITH HOVER SPOTLIGHT */}
+        <div className="rounded-[32px] bg-white/95 backdrop-blur-xl border border-slate-200/80 p-8 sm:p-12 shadow-sm text-left max-w-4xl mx-auto relative overflow-hidden transition-all duration-300 hover:shadow-md">
+          <div className="text-center space-y-2 mb-10">
+            <span className="text-xs font-mono uppercase tracking-widest text-emerald-800 font-semibold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+              How DIYA Works
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-light text-[#002E25] tracking-tight">
+              From handwritten script to verified decision support
+            </h2>
           </div>
 
-          {/* RIGHT CARD: Multi-disciplinary Stewardship Team (5 Cols) */}
-          <div 
-            onClick={onLaunchPortal}
-            className="lg:col-span-5 rounded-[32px] bg-gradient-to-br from-slate-50/90 via-white to-blue-50/30 backdrop-blur-2xl border border-slate-200/80 p-8 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.05)] hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between"
-          >
-            <div className="space-y-4">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500 font-semibold bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200/60">
-                Hospital Collaboration
-              </span>
-
-              <div>
-                <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition-colors">
-                  Stewardship Team Workflow
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 font-normal leading-relaxed mt-2">
-                  Enables hospital pharmacists, infectious disease clinicians, and microbiologists to review and sign off on therapy adjustments in seconds.
-                </p>
-              </div>
-
-              {/* Team Role Badges */}
-              <div className="space-y-2 pt-2">
-                <div className="flex items-center space-x-3 p-2.5 rounded-xl bg-white border border-slate-200/60 shadow-2xs">
-                  <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 text-xs font-semibold">
-                    PS
-                  </div>
-                  <div className="text-xs">
-                    <p className="font-semibold text-slate-900">Dr. Sharma</p>
-                    <p className="text-[10px] text-slate-500">Lead Clinical Pharmacist</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3 p-2.5 rounded-xl bg-white border border-slate-200/60 shadow-2xs">
-                  <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 text-xs font-semibold">
-                    RM
-                  </div>
-                  <div className="text-xs">
-                    <p className="font-semibold text-slate-900">Dr. Mehta</p>
-                    <p className="text-[10px] text-slate-500">Infectious Disease Specialist</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-700 mt-6">
-              <span className="text-slate-500 font-normal">Active Inpatient Queue</span>
-              <span className="inline-flex items-center space-x-1 text-slate-900 group-hover:translate-x-1 transition-transform">
-                <span>Open Reviews</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </span>
-            </div>
-          </div>
-
-        </div>
-
-      </section>
-
-      {/* SECTION 3: THE INTERACTIVE EVIDENCE ENGINE (Light Liquid Glassmorphism) */}
-      <section className="relative py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-        <div className="text-center space-y-2 mb-8">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[11px] font-mono">
-            <span>VERIFIED CLINICAL GROUNDING</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-light text-slate-900 tracking-tight">
-            How DIYA cross-checks clinical reality
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto font-normal">
-            Every statement generated by DIYA is directly traceable to uploaded hospital records and ICMR national guidelines.
-          </p>
-        </div>
-
-        {/* Centered Frosted White Liquid Glass Card */}
-        <div className="rounded-[32px] bg-white/90 backdrop-blur-2xl border border-slate-200/90 p-6 sm:p-10 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.06)] relative text-left">
-          
-          {/* Top Pill Navigation Tabs inside the Card */}
-          <div className="flex items-center justify-center space-x-2 pb-8 border-b border-slate-100">
-            <button
-              onClick={() => setActiveTabInCard('summary')}
-              className={`px-5 py-2 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                activeTabInCard === 'summary' 
-                  ? 'bg-slate-900 text-white shadow-xs font-semibold' 
-                  : 'text-slate-600 hover:text-slate-900 bg-slate-100/80 hover:bg-slate-100'
-              }`}
-            >
-              Diagnostic Brief
-            </button>
-            <button
-              onClick={() => setActiveTabInCard('evidence')}
-              className={`px-5 py-2 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                activeTabInCard === 'evidence' 
-                  ? 'bg-slate-900 text-white shadow-xs font-semibold' 
-                  : 'text-slate-600 hover:text-slate-900 bg-slate-100/80 hover:bg-slate-100'
-              }`}
-            >
-              Grounding Documents
-            </button>
-            <button
-              onClick={() => setActiveTabInCard('guidelines')}
-              className={`px-5 py-2 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                activeTabInCard === 'guidelines' 
-                  ? 'bg-slate-900 text-white shadow-xs font-semibold' 
-                  : 'text-slate-600 hover:text-slate-900 bg-slate-100/80 hover:bg-slate-100'
-              }`}
-            >
-              ICMR Guidelines
-            </button>
-          </div>
-
-          {/* Card Body Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            {/* Left Image / Thumbnail (4 Cols) */}
-            <div className="lg:col-span-4">
-              <div className="relative rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs aspect-video lg:aspect-square bg-slate-100">
-                <img 
-                  src={activeTabInCard === 'guidelines' ? '/images/hero-botanical-pink.jpg' : '/images/culture-thumb.jpg'} 
-                  alt="Clinical Focus" 
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4 text-white">
-                  <span className="text-[10px] font-mono uppercase tracking-wider bg-slate-900/80 px-2 py-0.5 rounded-full">
-                    {activeTabInCard === 'summary' ? 'Microbiology Confirmed' : activeTabInCard === 'evidence' ? 'Document Citation' : 'National Standard'}
-                  </span>
-                  <p className="text-xs font-semibold mt-1">
-                    {activeTabInCard === 'summary' ? 'Escherichia coli (>10^5 CFU/mL)' : activeTabInCard === 'evidence' ? 'Blood_Culture_Report.pdf (Page 1)' : 'ICMR AMR Guidelines 2026'}
-                  </p>
-                </div>
+            {/* Step 1 */}
+            <div className="p-6 rounded-2xl bg-[#FAF9F5] border border-slate-200/60 space-y-3 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-600/30 hover:shadow-xs group cursor-pointer">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100/80 flex items-center justify-center text-emerald-900 font-bold font-mono text-sm group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                <FileText className="w-5 h-5" />
               </div>
+              <h3 className="text-base font-semibold text-slate-900 group-hover:text-emerald-900 transition-colors">
+                1. Upload Prescription / AST
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                Snap a photo or attach a PDF of the physician's prescription, culture panel, or medication chart.
+              </p>
             </div>
 
-            {/* Center Content Column (5 Cols) */}
-            <div className="lg:col-span-5 space-y-4">
-              {activeTabInCard === 'summary' && (
-                <div className="space-y-3">
-                  <h3 className="text-xl sm:text-2xl font-semibold text-slate-900">
-                    Targeted De-escalation Brief
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 font-normal leading-relaxed">
-                    Patient PT-1042 was initiated on empiric broad-spectrum Meropenem 1g IV TDS. Definitive blood culture confirms Ceftriaxone susceptibility, enabling safe carbapenem sparing.
-                  </p>
-                  <div className="space-y-2 pt-1">
-                    <div className="flex items-start space-x-2 text-xs text-slate-700">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Recommended regimen: Ceftriaxone 2g IV once daily</span>
-                    </div>
-                    <div className="flex items-start space-x-2 text-xs text-slate-700">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>Renal consideration: Serum Creatinine 1.8 mg/dL (Requires 48h repeat)</span>
-                    </div>
-                    <div className="flex items-start space-x-2 text-xs text-slate-700">
-                      <CheckCircle2 className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                      <span>Allergy flag: Childhood Amoxicillin rash (Low cephalosporin cross-reactivity)</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeTabInCard === 'evidence' && (
-                <div className="space-y-3">
-                  <h3 className="text-xl sm:text-2xl font-semibold text-slate-900">
-                    Zero-Hallucination Grounding
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 font-normal leading-relaxed">
-                    Every finding is linked to an exact PDF bounding box or documented laboratory measurement. Healthcare staff can inspect source pages with a single click.
-                  </p>
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 font-mono text-[11px] text-slate-700 space-y-1">
-                    <p className="text-emerald-800 font-semibold">Source: Blood_Culture_Report.pdf (Page 1)</p>
-                    <p className="text-slate-600 italic">"Specimen: Blood. Organism: Escherichia coli. Meropenem: S. Ceftriaxone: S. Amoxicillin: R."</p>
-                  </div>
-                </div>
-              )}
-
-              {activeTabInCard === 'guidelines' && (
-                <div className="space-y-3">
-                  <h3 className="text-xl sm:text-2xl font-semibold text-slate-900">
-                    ICMR & Sanford Protocol Alignment
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 font-normal leading-relaxed">
-                    Recommendations adhere strictly to the Indian Council of Medical Research (ICMR) Antimicrobial Guidelines 2026 for Gram-negative bacteremia.
-                  </p>
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 font-mono text-[11px] text-slate-700 space-y-1">
-                    <p className="text-emerald-800 font-semibold">ICMR Guideline Section 4.2.1</p>
-                    <p className="text-slate-600">"In bloodstream infections with documented cephalosporin susceptibility, de-escalate carbapenems within 48 to 72 hours."</p>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex flex-wrap gap-2 pt-2">
-                <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
-                  Documentary Brief
-                </span>
-                <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
-                  ICMR 2026
-                </span>
-                <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-                  Verified Grounding
-                </span>
+            {/* Step 2 */}
+            <div className="p-6 rounded-2xl bg-[#FAF9F5] border border-slate-200/60 space-y-3 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-600/30 hover:shadow-xs group cursor-pointer">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100/80 flex items-center justify-center text-emerald-900 font-bold font-mono text-sm group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                <Sparkles className="w-5 h-5" />
               </div>
+              <h3 className="text-base font-semibold text-slate-900 group-hover:text-emerald-900 transition-colors">
+                2. Gemini Multimodal OCR
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                Gemini 2.5 Flash transcribes handwritten drug names, dosages, isolated organisms, and AST susceptibility.
+              </p>
             </div>
 
-            {/* Right Action Column (3 Cols) */}
-            <div className="lg:col-span-3 flex flex-col justify-center space-y-3 lg:border-l lg:border-slate-100 lg:pl-6">
-              <button
-                onClick={() => onSelectCase && onSelectCase('demo1')}
-                className="w-full py-3 px-4 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition-all shadow-xs flex items-center justify-center space-x-2 cursor-pointer"
-              >
-                <Play className="w-3.5 h-3.5 fill-white" />
-                <span>Review Case PT-1042</span>
-              </button>
-
-              <button
-                onClick={onLaunchPortal}
-                className="w-full py-3 px-4 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium text-xs border border-slate-200 transition-all flex items-center justify-center space-x-2 cursor-pointer"
-              >
-                <FileText className="w-3.5 h-3.5 text-slate-500" />
-                <span>View Full Dossier</span>
-              </button>
+            {/* Step 3 */}
+            <div className="p-6 rounded-2xl bg-[#FAF9F5] border border-slate-200/60 space-y-3 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-600/30 hover:shadow-xs group cursor-pointer">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100/80 flex items-center justify-center text-emerald-900 font-bold font-mono text-sm group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <h3 className="text-base font-semibold text-slate-900 group-hover:text-emerald-900 transition-colors">
+                3. Targeted Recommendation
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                Evaluates kidney markers and allergy history against ICMR &amp; WHO AWaRe to recommend the safest narrow antibiotic.
+              </p>
             </div>
 
           </div>
         </div>
+
       </section>
 
-      {/* SECTION 4: CLINICAL IMPACT METRICS (Light Theme) */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 text-left">
-          
-          <div className="p-6 rounded-2xl bg-white/90 backdrop-blur-xl border border-slate-200/80 shadow-xs">
-            <p className="text-3xl sm:text-4xl font-light text-slate-900 font-mono">99.1%</p>
-            <p className="text-xs font-semibold text-slate-800 mt-1">Guideline Concordance</p>
-            <p className="text-[11px] text-slate-500 font-normal mt-0.5">ICMR & Sanford protocol alignment</p>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-white/90 backdrop-blur-xl border border-slate-200/80 shadow-xs">
-            <p className="text-3xl sm:text-4xl font-light text-slate-900 font-mono">0.4s</p>
-            <p className="text-xs font-semibold text-slate-800 mt-1">Context Synthesis</p>
-            <p className="text-[11px] text-slate-500 font-normal mt-0.5">Multi-document evidence extraction</p>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-white/90 backdrop-blur-xl border border-slate-200/80 shadow-xs">
-            <p className="text-3xl sm:text-4xl font-light text-slate-900 font-mono">-72%</p>
-            <p className="text-xs font-semibold text-slate-800 mt-1">Turnaround Time</p>
-            <p className="text-[11px] text-slate-500 font-normal mt-0.5">Culture report to decision brief</p>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-white/90 backdrop-blur-xl border border-slate-200/80 shadow-xs">
-            <p className="text-3xl sm:text-4xl font-light text-slate-900 font-mono">100%</p>
-            <p className="text-xs font-semibold text-slate-800 mt-1">Safety Checks</p>
-            <p className="text-[11px] text-slate-500 font-normal mt-0.5">Renal clearance & unverified allergies</p>
-          </div>
-
-        </div>
-      </section>
-
-      {/* SECTION 5: CLINICAL BENCHMARK CASES */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto text-left">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-xl font-normal text-slate-900 tracking-tight">
-              Interactive Patient Cases
-            </h3>
-            <p className="text-xs text-slate-500 font-normal">
-              Select any clinical case to launch the interactive antimicrobial review workspace.
-            </p>
-          </div>
-
-          <button
-            onClick={onLaunchPortal}
-            className="hidden sm:inline-flex items-center space-x-1 text-xs font-medium text-slate-700 hover:text-slate-900 transition-colors cursor-pointer"
-          >
-            <span>Enter Inpatient Queue</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
+      {/* SECTION 3: DEMO CASE COMPARISON (Clean White Background with Tilt & Hover Interaction) */}
+      <section className="py-16 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-left">
+        <div className="border-b border-slate-200 pb-4 mb-8">
+          <h2 className="text-2xl sm:text-3xl font-light text-[#002E25] tracking-tight">
+            Real Clinical Scenarios
+          </h2>
+          <p className="text-xs text-slate-500 font-normal mt-1">
+            Explore how DIYA identifies de-escalation opportunities and prevents adverse renal reactions.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
-          {/* Case 1 */}
+          {/* Demo 1 */}
           <div 
-            onClick={() => onSelectCase && onSelectCase('demo1')}
-            className="p-6 rounded-2xl bg-white/90 hover:bg-white backdrop-blur-xl border border-slate-200/80 hover:border-slate-300 shadow-xs transition-all cursor-pointer group flex flex-col justify-between"
+            onClick={onLaunchPortal}
+            className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:border-emerald-600 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer group flex flex-col justify-between"
           >
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-slate-700">CASE PT-1042</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 font-medium">
+                <span className="font-mono text-xs font-bold text-slate-900">PT-1042</span>
+                <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold">
                   DE-ESCALATION
                 </span>
               </div>
-              <h4 className="text-base font-semibold text-slate-900 group-hover:text-emerald-900 transition-colors">
-                Escherichia coli Bacteremia
-              </h4>
-              <p className="text-xs text-slate-500 font-normal leading-relaxed">
-                Meropenem broad-spectrum empiric therapy with confirmed Ceftriaxone susceptibility. 48h recency check needed for serum creatinine.
+              <h3 className="text-base font-semibold text-slate-900 group-hover:text-emerald-900 transition-colors">
+                E. coli Bacteremia (ICU Bed 08)
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                Empiric broad Meropenem prescribed. Blood culture AST confirms Ceftriaxone susceptibility. De-escalates to preserve carbapenem longevity.
               </p>
             </div>
-            <div className="pt-6 flex items-center justify-between border-t border-slate-100 mt-4 text-xs font-medium">
-              <span className="text-slate-500 font-normal">Medicine ICU Bed 08</span>
-              <span className="text-slate-900 font-semibold group-hover:translate-x-1 transition-transform flex items-center space-x-1">
-                <span>Review Case</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </span>
+            <div className="pt-6 border-t border-slate-100 flex items-center justify-between text-xs font-medium text-emerald-800 mt-4">
+              <span className="font-semibold">Sign in to inspect</span>
+              <ChevronRight className="w-4 h-4 transform group-hover:translate-x-1.5 transition-transform" />
             </div>
           </div>
 
-          {/* Case 2 */}
+          {/* Demo 2 */}
           <div 
-            onClick={() => onSelectCase && onSelectCase('demo2')}
-            className="p-6 rounded-2xl bg-white/90 hover:bg-white backdrop-blur-xl border border-slate-200/80 hover:border-slate-300 shadow-xs transition-all cursor-pointer group flex flex-col justify-between"
+            onClick={onLaunchPortal}
+            className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:border-amber-600 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer group flex flex-col justify-between"
           >
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-slate-700">CASE PT-1039</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-medium">
-                  RENAL ADJUSTMENT
+                <span className="font-mono text-xs font-bold text-slate-900">PT-1039</span>
+                <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-semibold">
+                  RENAL GAPS
                 </span>
               </div>
-              <h4 className="text-base font-semibold text-slate-900 group-hover:text-amber-900 transition-colors">
+              <h3 className="text-base font-semibold text-slate-900 group-hover:text-amber-900 transition-colors">
                 Complicated Pyelonephritis (UTI)
-              </h4>
-              <p className="text-xs text-slate-500 font-normal leading-relaxed">
-                Piperacillin/Tazobactam therapy day 6. Missing recent CrCl estimation. High-risk prolonged carbapenem candidate.
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                Piperacillin/Tazobactam day 6. Missing recent serum creatinine estimation. Surfaces timeout flag to prevent acute kidney injury.
               </p>
             </div>
-            <div className="pt-6 flex items-center justify-between border-t border-slate-100 mt-4 text-xs font-medium">
-              <span className="text-slate-500 font-normal">Ward 3 (General)</span>
-              <span className="text-slate-900 font-semibold group-hover:translate-x-1 transition-transform flex items-center space-x-1">
-                <span>Review Case</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </span>
+            <div className="pt-6 border-t border-slate-100 flex items-center justify-between text-xs font-medium text-amber-800 mt-4">
+              <span className="font-semibold">Sign in to inspect</span>
+              <ChevronRight className="w-4 h-4 transform group-hover:translate-x-1.5 transition-transform" />
             </div>
           </div>
 
-          {/* Case 3 */}
+          {/* Demo 3 */}
           <div 
-            onClick={() => onSelectCase && onSelectCase('demo3')}
-            className="p-6 rounded-2xl bg-white/90 hover:bg-white backdrop-blur-xl border border-slate-200/80 hover:border-slate-300 shadow-xs transition-all cursor-pointer group flex flex-col justify-between"
+            onClick={onLaunchPortal}
+            className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:border-purple-600 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer group flex flex-col justify-between"
           >
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-slate-700">CASE PT-1035</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 font-medium">
+                <span className="font-mono text-xs font-bold text-slate-900">PT-1035</span>
+                <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-800 border border-purple-200 font-semibold">
                   ALLERGY CONFLICT
                 </span>
               </div>
-              <h4 className="text-base font-semibold text-slate-900 group-hover:text-purple-900 transition-colors">
+              <h3 className="text-base font-semibold text-slate-900 group-hover:text-purple-900 transition-colors">
                 Post-Op Surgical Site Infection
-              </h4>
-              <p className="text-xs text-slate-500 font-normal leading-relaxed">
-                Contradictory allergy records: ER admission lists Penicillin anaphylaxis while surgical ward chart states NKDA.
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                ER intake states Penicillin anaphylaxis while ward chart says NKDA. Reconciles allergy severity before beta-lactam avoidance.
               </p>
             </div>
-            <div className="pt-6 flex items-center justify-between border-t border-slate-100 mt-4 text-xs font-medium">
-              <span className="text-slate-500 font-normal">Surgical Ward 2</span>
-              <span className="text-slate-900 font-semibold group-hover:translate-x-1 transition-transform flex items-center space-x-1">
-                <span>Review Case</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </span>
+            <div className="pt-6 border-t border-slate-100 flex items-center justify-between text-xs font-medium text-purple-800 mt-4">
+              <span className="font-semibold">Sign in to inspect</span>
+              <ChevronRight className="w-4 h-4 transform group-hover:translate-x-1.5 transition-transform" />
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="border-t border-slate-200/80 py-8 px-4 text-center text-xs text-slate-500 font-normal bg-white/60">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center space-x-2">
-            <span className="font-semibold text-slate-900">DIYA</span>
-            <span>-</span>
-            <span>Diagnostic Intelligence &amp; Antibiotic Review Assistant</span>
+      {/* SECTION 4: FREQUENTLY ASKED QUESTIONS (Accordion style like meetaugust.ai) */}
+      <section className="py-16 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-left">
+        <div className="mb-8">
+          <h2 className="text-2xl sm:text-3xl font-light text-[#002E25] tracking-tight">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-xs text-slate-500 font-normal mt-1">
+            Common questions about prescription reading, antimicrobial guidelines, and security.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          {faqs.map((faq, idx) => {
+            const isOpen = openFaq === idx;
+            return (
+              <div 
+                key={idx}
+                className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs transition-all"
+              >
+                <button
+                  type="button"
+                  onClick={() => toggleFaq(idx)}
+                  className="w-full p-6 text-left flex items-center justify-between cursor-pointer hover:bg-slate-50/50 transition-colors"
+                >
+                  <span className="text-base font-medium text-slate-900 pr-4">
+                    {faq.q}
+                  </span>
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                    isOpen ? 'bg-[#1C604D] text-white' : 'bg-slate-100 text-slate-600'
+                  }`}>
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                  </div>
+                </button>
+
+                {isOpen && (
+                  <div className="px-6 pb-6 pt-1 text-xs text-slate-600 leading-relaxed border-t border-slate-100 font-normal">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* SECTION 5: MINIMALIST CALL TO ACTION (Inspired by August AI Green Gradient Banner) */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+        <div className="rounded-[36px] bg-gradient-to-b from-[#206E55] to-[#164E3E] text-white p-10 sm:p-16 text-center space-y-6 shadow-xl relative overflow-hidden group">
+          <div className="max-w-2xl mx-auto space-y-4 relative z-10">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-white leading-tight">
+              Stop guessing what the doctor wrote
+            </h2>
+            <p className="text-sm sm:text-base text-emerald-100 font-light max-w-xl mx-auto">
+              Scan prescriptions with Gemini OCR, verify pathogen susceptibility, and safeguard patients with evidence-grounded antibiotic choices.
+            </p>
           </div>
-          <div className="text-[11px] text-slate-500">
-            Authorized hospital healthcare professionals only. Not an autonomous prescriber.
+
+          <div className="pt-2 relative z-10">
+            <button
+              onClick={onLaunchPortal}
+              className="px-9 py-4 rounded-full bg-white text-[#1C604D] font-semibold text-sm hover:bg-emerald-50 transition-all transform hover:scale-105 active:scale-95 shadow-md cursor-pointer inline-flex items-center space-x-2"
+            >
+              <span>Launch Clinical Reader</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
+        </div>
+      </section>
+
+      {/* SECTION 6: CLEAN & MINIMALIST FOOTER (Exactly matching August AI footer aesthetic) */}
+      <footer className="bg-[#1C1917] text-white py-16 px-4 sm:px-6 lg:px-8 text-left">
+        <div className="max-w-5xl mx-auto space-y-12">
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="space-y-3">
+              <p className="text-[11px] font-mono uppercase tracking-widest text-slate-400 font-semibold">
+                PLATFORM
+              </p>
+              <ul className="space-y-2 text-xs text-slate-300">
+                <li><button onClick={onLaunchPortal} className="hover:text-white transition-colors cursor-pointer">Prescription Reader</button></li>
+                <li><button onClick={onLaunchPortal} className="hover:text-white transition-colors cursor-pointer">Antimicrobial Stewardship</button></li>
+                <li><button onClick={onLaunchPortal} className="hover:text-white transition-colors cursor-pointer">AST Antibiogram Parser</button></li>
+                <li><button onClick={onLaunchPortal} className="hover:text-white transition-colors cursor-pointer">Patient Tracking</button></li>
+              </ul>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-[11px] font-mono uppercase tracking-widest text-slate-400 font-semibold">
+                GUIDELINES
+              </p>
+              <ul className="space-y-2 text-xs text-slate-300">
+                <li><a href="https://main.icmr.nic.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">ICMR 2024 Guidelines</a></li>
+                <li><a href="https://www.who.int/publications/i/item/2024-aware-classification" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">WHO AWaRe 2024</a></li>
+                <li><button onClick={onLaunchPortal} className="hover:text-white transition-colors cursor-pointer">Carbapenem Sparing</button></li>
+                <li><button onClick={onLaunchPortal} className="hover:text-white transition-colors cursor-pointer">De-escalation Protocols</button></li>
+              </ul>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-[11px] font-mono uppercase tracking-widest text-slate-400 font-semibold">
+                SECURITY &amp; DB
+              </p>
+              <ul className="space-y-2 text-xs text-slate-300">
+                <li><span className="text-slate-300">Supabase PostgreSQL</span></li>
+                <li><span className="text-slate-300">Row Level Security</span></li>
+                <li><span className="text-slate-300">Google Gemini 2.5 Flash</span></li>
+                <li><span className="text-slate-300">Audit Trail Logging</span></li>
+              </ul>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-[11px] font-mono uppercase tracking-widest text-slate-400 font-semibold">
+                HOSPITAL ACCESS
+              </p>
+              <ul className="space-y-2 text-xs text-slate-300">
+                <li><button onClick={onLaunchPortal} className="hover:text-white transition-colors cursor-pointer">Staff Login</button></li>
+                <li><button onClick={onLaunchPortal} className="hover:text-white transition-colors cursor-pointer">Doctor Portal</button></li>
+                <li><button onClick={onLaunchPortal} className="hover:text-white transition-colors cursor-pointer">Pharmacist Console</button></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <div className="flex items-center space-x-3">
+              <img 
+                src="/diya-brand-logo.png" 
+                alt="Diya Logo" 
+                className="h-7 w-auto object-contain brightness-0 invert opacity-85" 
+              />
+              <span>·</span>
+              <span>Diagnostic Intelligence &amp; Antibiotic Review Assistant</span>
+            </div>
+            <div>
+              © 2026 DIYA Health AMS. Clinical Decision Support System.
+            </div>
+          </div>
+
         </div>
       </footer>
 

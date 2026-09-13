@@ -46,9 +46,16 @@ export default function ExportReviewCard({
         {/* Hospital & Report Header */}
         <div className="border-b-2 border-slate-900 pb-4 flex justify-between items-start">
           <div className="space-y-1">
-            <h2 className="text-2xl font-black tracking-tight text-slate-900">
-              DIYA CLINICAL REVIEW
-            </h2>
+            <div className="flex items-center space-x-3 mb-1">
+              <img 
+                src="/diya-brand-logo.png" 
+                alt="Diya Logo" 
+                className="h-10 w-auto object-contain" 
+              />
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 border-l border-slate-300 pl-3">
+                Clinical Decision Brief
+              </span>
+            </div>
             <p className="text-xs font-semibold text-slate-600">
               ANTIMICROBIAL STEWARDSHIP &amp; DECISION SUPPORT BRIEF
             </p>

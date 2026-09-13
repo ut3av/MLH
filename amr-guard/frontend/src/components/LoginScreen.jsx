@@ -60,15 +60,19 @@ export default function LoginScreen({ onLogin, onBackToShowcase }) {
       <div className="w-full max-w-md space-y-6">
         
         {/* Brand Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-semibold text-emerald-800 uppercase tracking-wider mb-1">
-            <Sparkles className="w-3 h-3 text-emerald-600" />
-            <span>Gemini AI Connected Security</span>
+        <div className="text-center space-y-3">
+          <div className="flex justify-center mb-2">
+            <img 
+              src="/diya-brand-logo.png" 
+              alt="Diya Logo" 
+              className="h-14 sm:h-16 w-auto object-contain drop-shadow-xs" 
+            />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 font-sans">
-            DIYA Clinical Access
-          </h1>
-          <p className="text-xs font-medium text-slate-500">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-semibold text-emerald-800 uppercase tracking-wider">
+            <Sparkles className="w-3 h-3 text-emerald-600" />
+            <span>Gemini AI Connected Clinical Access</span>
+          </div>
+          <p className="text-xs font-medium text-slate-500 max-w-xs mx-auto">
             Sign in to unlock patient records, OCR prescription extraction, and AMS review.
           </p>
         </div>

@@ -26,9 +26,11 @@ export default function Navbar({
               else setCurrentTab('landing');
             }}
           >
-            <span className="text-xl font-medium tracking-tight text-slate-900 group-hover:text-emerald-800 transition-colors select-none font-sans">
-              DIYA
-            </span>
+            <img 
+              src="/diya-brand-logo.png" 
+              alt="Diya Logo" 
+              className="h-8 sm:h-9 w-auto object-contain transition-transform group-hover:scale-105" 
+            />
             <span className="text-[10px] uppercase tracking-wider font-medium text-slate-500 bg-slate-100/90 px-2.5 py-0.5 rounded-full border border-slate-200/70 hidden sm:inline-block">
               Hospital AMS
             </span>

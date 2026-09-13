@@ -71,6 +71,7 @@ class AnalyzeResponse(BaseModel):
     conflicts: List[Conflict] = []
     review_flags: List[ReviewFlag] = []
     retrieved_sources: List[KnowledgeChunk] = []
+    recommended_antibiotic: Optional[Dict[str, Any]] = None
     disclaimer: str = "DIYA is an assistive clinical decision-support tool. It does not diagnose, prescribe, change medication, or replace qualified clinician judgment. All flags must be evaluated by a healthcare professional."
 
 class CaseCreateRequest(BaseModel):
