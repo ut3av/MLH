@@ -77,6 +77,10 @@ function App() {
 
   // Load a clinical review case
   const handleSelectCase = async (caseKey) => {
+    if (caseKey === 'new') {
+      setCurrentTab('new_review');
+      return;
+    }
     setIsAnalyzingModalOpen(true);
     try {
       const res = await fetch(`${API_BASE}/api/demo-cases/${caseKey}/load`, {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, LogOut, Lock, ArrowRight } from 'lucide-react';
+import { User, LogOut, Lock, ArrowRight, Plus, Sparkles } from 'lucide-react';
 
 export default function Navbar({ 
   currentTab, 
@@ -145,8 +145,20 @@ export default function Navbar({
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             ) : (
-              /* If Authenticated: Show Staff Info & Sign out */
-              <div className="flex items-center space-x-2">
+              /* If Authenticated: Show New Patient CTA, Staff Info & Sign out */
+              <div className="flex items-center space-x-2.5">
+                <button
+                  onClick={() => setCurrentTab('new_review')}
+                  className="hidden sm:inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-800 hover:from-emerald-500 hover:to-teal-700 text-white text-xs font-bold shadow-xs hover:shadow-md transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer group border border-emerald-400/30"
+                  title="Start New Patient Antimicrobial Review"
+                >
+                  <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center group-hover:rotate-90 transition-transform duration-300">
+                    <Plus className="w-3 h-3 text-white stroke-[2.5]" />
+                  </div>
+                  <span>+ New Patient</span>
+                  <Sparkles className="w-3 h-3 text-emerald-200 animate-pulse" />
+                </button>
+
                 <div className="flex items-center space-x-2 text-xs font-medium text-slate-700 bg-slate-100/80 px-3 py-1 rounded-full border border-slate-200/60">
                   <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-slate-600">
                     <User className="w-3 h-3" />

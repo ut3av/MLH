@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, ArrowRight, Clock, ShieldCheck, FileText, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Plus, ArrowRight, Clock, ShieldCheck, FileText, CheckCircle2, AlertCircle, RefreshCw, Sparkles } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 export default function MainDashboard({ 
@@ -60,10 +60,29 @@ export default function MainDashboard({
 
         <button
           onClick={onStartNewReview}
-          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm hover:shadow transition-all flex items-center space-x-2 cursor-pointer"
+          className="relative group overflow-hidden rounded-2xl p-[1.5px] focus:outline-hidden transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shadow-[0_4px_20px_-4px_rgba(16,185,129,0.35)] hover:shadow-[0_8px_30px_-4px_rgba(16,185,129,0.55)]"
         >
-          <Plus className="w-4 h-4" />
-          <span>{isHindi ? 'नया रोगी समीक्षा शुरू करें' : '+ New Patient Review'}</span>
+          {/* Animated gradient border halo */}
+          <span className="absolute inset-0 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600 rounded-2xl opacity-90 group-hover:opacity-100 transition-opacity" />
+          
+          {/* Core button face */}
+          <span className="relative flex items-center space-x-3 bg-gradient-to-r from-emerald-700 via-emerald-800 to-teal-900 text-white px-5 py-2.5 rounded-[14px] text-xs font-bold tracking-wide transition-all group-hover:from-emerald-600 group-hover:to-teal-800">
+            <span className="w-7 h-7 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:bg-white/25 transition-all duration-200">
+              <Plus className="w-4 h-4 text-emerald-200 group-hover:text-white stroke-[2.5]" />
+            </span>
+            <span className="flex flex-col text-left">
+              <span className="text-[13px] font-bold tracking-tight text-white flex items-center space-x-1.5">
+                <span>{isHindi ? 'नया रोगी समीक्षा शुरू करें' : '+ New Patient Review'}</span>
+                <Sparkles className="w-3.5 h-3.5 text-emerald-300 animate-pulse" />
+              </span>
+              <span className="text-[10px] text-emerald-200/80 font-normal">
+                {isHindi ? 'मल्टीमॉडल जेमिनी ओसीआर' : 'Multimodal Gemini OCR'}
+              </span>
+            </span>
+            <span className="pl-1 text-emerald-300/80 group-hover:text-white group-hover:translate-x-1 transition-all">
+              <ArrowRight className="w-4 h-4" />
+            </span>
+          </span>
         </button>
       </div>
 
@@ -139,10 +158,13 @@ export default function MainDashboard({
                       <button
                         type="button"
                         onClick={onStartNewReview}
-                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors cursor-pointer inline-flex items-center space-x-1.5"
+                        className="inline-flex items-center space-x-2.5 px-5 py-2.5 bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-800 hover:from-emerald-500 hover:to-teal-700 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer border border-emerald-400/30 group"
                       >
-                        <Plus className="w-3.5 h-3.5" />
+                        <div className="w-5 h-5 rounded-lg bg-white/20 flex items-center justify-center group-hover:rotate-90 transition-transform duration-300">
+                          <Plus className="w-3.5 h-3.5 text-white stroke-[2.5]" />
+                        </div>
                         <span>Upload First Patient Report</span>
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-200" />
                       </button>
                     </div>
                   </td>
