@@ -16,7 +16,8 @@ function App() {
   const [flags, setFlags] = useState([]);
   const [questions, setQuestions] = useState([]);
 
-  const handleAnalyze = async () => {
+  const handleAnalyze = async (e) => {
+    if (e) e.preventDefault();
     setAnalyzing(true);
     
     try {
@@ -56,17 +57,19 @@ function App() {
               <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
                  <h2 className="text-xl font-bold mb-4">Start New Case</h2>
                  <p className="text-slate-600 mb-6">Upload clinical documents to generate a patient-specific stewardship review.</p>
-                 <MultiDocumentUpload files={files} setFiles={setFiles} />
-                 
-                 <div className="mt-6 flex justify-end">
-                    <button 
-                      onClick={handleAnalyze}
-                      disabled={analyzing || files.length === 0}
-                      className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-medium rounded-lg shadow transition-colors flex items-center"
-                    >
-                      {analyzing ? 'Extracting & Analyzing...' : 'Generate Review Brief'}
-                    </button>
-                 </div>
+                 <form onSubmit={handleAnalyze}>
+                   <MultiDocumentUpload files={files} setFiles={setFiles} />
+                   
+                   <div className="mt-6 flex justify-end">
+                      <button 
+                        type="submit"
+                        disabled={analyzing || files.length === 0}
+                        className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-medium rounded-lg shadow transition-colors flex items-center"
+                      >
+                        {analyzing ? 'Extracting & Analyzing...' : 'Generate Review Brief'}
+                      </button>
+                   </div>
+                 </form>
                  {demoMode && (
                    <p className="mt-3 text-sm text-amber-600 text-right">
                      Running in Demo Mode. Results will be synthesized from demo packet.
@@ -81,7 +84,7 @@ function App() {
               </div>
               <div className="lg:col-span-1 space-y-6">
                  <PatientSummaryPanel analysisData={analysisData} />
-                 <button onClick={() => setAnalysisData(null)} className="w-full py-2 border border-slate-300 rounded text-slate-600 hover:bg-slate-100">
+                 <button type="button" onClick={() => setAnalysisData(null)} className="w-full py-2 border border-slate-300 rounded text-slate-600 hover:bg-slate-100">
                     Start New Case
                  </button>
               </div>
