@@ -11,6 +11,7 @@ import PatientsListPage from './components/PatientsListPage';
 import ActivityTimelinePage from './components/ActivityTimelinePage';
 import AnalysisProgressModal from './components/AnalysisProgressModal';
 import DocumentViewerModal from './components/DocumentViewerModal';
+import ShowcaseLandingPage from './components/ShowcaseLandingPage';
 import { ArrowLeft, ShieldCheck, Eye, FileText, CheckCircle2 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:8000';
@@ -20,8 +21,8 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userSession, setUserSession] = useState(null);
 
-  // Clinical Navigation Tab: 'dashboard' | 'new_review' | 'review' | 'export' | 'patients' | 'guidelines' | 'activity'
-  const [currentTab, setCurrentTab] = useState('dashboard');
+  // Clinical Navigation Tab: 'landing' | 'dashboard' | 'new_review' | 'review' | 'export' | 'patients' | 'guidelines' | 'activity'
+  const [currentTab, setCurrentTab] = useState('landing');
   const [language, setLanguage] = useState('English');
   const [isAnalyzingModalOpen, setIsAnalyzingModalOpen] = useState(false);
 
@@ -66,7 +67,7 @@ function App() {
   const handleLogout = () => {
     setIsAuthenticated(false);
     setUserSession(null);
-    setCurrentTab('dashboard');
+    setCurrentTab('landing');
   };
 
   // Load a clinical review case
@@ -191,9 +192,46 @@ function App() {
     setIsDocViewerOpen(true);
   };
 
+  // VIEW 0: Public Showcase Landing Page (Dribbble Cinematic Medical Style)
+  if (currentTab === 'landing') {
+    return (
+      <ShowcaseLandingPage
+        onLaunchPortal={() => {
+          if (!isAuthenticated) {
+            setIsAuthenticated(true);
+            setUserSession({
+              hospital: 'St. Jude Memorial Hospital - Infectious Diseases & AMS',
+              email: 'dr.sharma@hospital.org',
+              role: 'Clinical Pharmacist'
+            });
+          }
+          setCurrentTab('dashboard');
+        }}
+        onSelectCase={(caseKey) => {
+          if (!isAuthenticated) {
+            setIsAuthenticated(true);
+            setUserSession({
+              hospital: 'St. Jude Memorial Hospital - Infectious Diseases & AMS',
+              email: 'dr.sharma@hospital.org',
+              role: 'Clinical Pharmacist'
+            });
+          }
+          handleSelectCase(caseKey);
+        }}
+        language={language}
+        setLanguage={setLanguage}
+      />
+    );
+  }
+
   // If not authenticated, render hospital login screen
   if (!isAuthenticated) {
-    return <LoginScreen onLogin={handleLogin} />;
+    return (
+      <LoginScreen 
+        onLogin={handleLogin} 
+        onBackToShowcase={() => setCurrentTab('landing')} 
+      />
+    );
   }
 
   return (

@@ -42,6 +42,16 @@ export default function Navbar({
           {/* Navigation Links */}
           <nav className="hidden md:flex items-center space-x-1 text-xs font-semibold text-slate-600">
             <button
+              onClick={() => setCurrentTab('landing')}
+              className={`px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+                currentTab === 'landing' 
+                  ? 'text-emerald-700 bg-emerald-50 font-bold' 
+                  : 'hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              Showcase
+            </button>
+            <button
               onClick={() => setCurrentTab('dashboard')}
               className={`px-3 py-2 rounded-lg transition-colors cursor-pointer ${
                 currentTab === 'dashboard' || currentTab === 'review' 

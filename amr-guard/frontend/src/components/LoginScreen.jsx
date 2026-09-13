@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ShieldCheck, ArrowRight, Lock, Building, Mail } from 'lucide-react';
 
-export default function LoginScreen({ onLogin }) {
+export default function LoginScreen({ onLogin, onBackToShowcase }) {
   const [hospital, setHospital] = useState('St. Jude Memorial Hospital - Infectious Diseases & AMS');
   const [email, setEmail] = useState('dr.sharma@hospital.org');
   const [password, setPassword] = useState('clinical-secure-2026');
@@ -99,10 +99,19 @@ export default function LoginScreen({ onLogin }) {
           </form>
 
           {/* Quick Demo Access Note */}
-          <div className="pt-2 border-t border-slate-100 text-center">
+          <div className="pt-2 border-t border-slate-100 flex flex-col items-center space-y-2">
             <p className="text-[11px] text-slate-500 font-medium">
               Demo access pre-configured for authorized hospital staff
             </p>
+            {onBackToShowcase && (
+              <button
+                type="button"
+                onClick={onBackToShowcase}
+                className="text-xs text-emerald-700 hover:text-emerald-800 font-semibold transition-colors cursor-pointer"
+              >
+                Return to Product Showcase
+              </button>
+            )}
           </div>
         </div>
 
