@@ -15,7 +15,7 @@ import DocumentViewerModal from './components/DocumentViewerModal';
 import ShowcaseLandingPage from './components/ShowcaseLandingPage';
 import { ArrowLeft, ShieldCheck, Eye, FileText, CheckCircle2 } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://diyaaa.onrender.com';
 
 function App() {
   // Authentication State: Initially unauthenticated

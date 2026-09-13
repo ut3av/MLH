@@ -5,6 +5,10 @@
   "outputDirectory": "amr-guard/frontend/dist",
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "https://diyaaa.onrender.com/api/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
