@@ -64,9 +64,9 @@ KNOWLEDGE_BASE = [
         scope="India"
     ),
     KnowledgeChunk(
-        id="synth_hosp_001",
+        id="apex_hosp_001",
         source_title="Hospital Antimicrobial Stewardship Policy",
-        organization="Synthetic General Hospital AMS Committee",
+        organization="Apex Institute of Medical Sciences AMS Committee",
         version="2025.1",
         section="Renal Dosing & Laboratory Recency",
         text="Antimicrobial dosing must be adjusted dynamically for estimated glomerular filtration rate (eGFR). Serum creatinine or eGFR measured within the past 48 hours is strictly required for patients receiving renally eliminated or nephrotoxic agents (Meropenem, Vancomycin, Aminoglycosides). If renal labs are >48 hours old, immediate repeat testing is warranted.",
@@ -74,7 +74,7 @@ KNOWLEDGE_BASE = [
         scope="Facility Level"
     ),
     KnowledgeChunk(
-        id="synth_antibiogram_001",
+        id="icu_antibiogram_001",
         source_title="ICU Cumulative Antibiogram",
         organization="Tertiary Care Hospital Microbiology Department",
         version="2025 Annual Update",

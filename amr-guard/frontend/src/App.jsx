@@ -8,20 +8,21 @@ import ClinicalDecisionOutput from './components/ClinicalDecisionOutput';
 import ExportReviewCard from './components/ExportReviewCard';
 import GuidelinesPage from './components/GuidelinesPage';
 import PatientsListPage from './components/PatientsListPage';
+import PrescriptionHistoryPage from './components/PrescriptionHistoryPage';
 import ActivityTimelinePage from './components/ActivityTimelinePage';
 import AnalysisProgressModal from './components/AnalysisProgressModal';
 import DocumentViewerModal from './components/DocumentViewerModal';
 import ShowcaseLandingPage from './components/ShowcaseLandingPage';
 import { ArrowLeft, ShieldCheck, Eye, FileText, CheckCircle2 } from 'lucide-react';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
 
 function App() {
-  // Authentication State
+  // Authentication State: Initially unauthenticated
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userSession, setUserSession] = useState(null);
 
-  // Clinical Navigation Tab: 'landing' | 'dashboard' | 'new_review' | 'review' | 'export' | 'patients' | 'guidelines' | 'activity'
+  // Clinical Navigation Tab: 'landing' | 'login' | 'dashboard' | 'new_review' | 'review' | 'export' | 'patients' | 'prescriptions' | 'guidelines' | 'activity'
   const [currentTab, setCurrentTab] = useState('landing');
   const [language, setLanguage] = useState('English');
   const [isAnalyzingModalOpen, setIsAnalyzingModalOpen] = useState(false);
@@ -175,7 +176,9 @@ function App() {
           { category: 'Medication', name: 'current_antibiotic', value: 'Meropenem 1g IV TDS' }
         ],
         cultures: [
-          { category: 'Microbiology', name: 'Organism', value: 'Escherichia coli (>10^5 CFU/mL)' }
+          { category: 'Microbiology', name: 'Organism', value: 'Escherichia coli (>10^5 CFU/mL)' },
+          { category: 'Microbiology', name: 'Ceftriaxone', value: 'SUSCEPTIBLE' },
+          { category: 'Microbiology', name: 'Meropenem', value: 'SUSCEPTIBLE' }
         ],
         labs: [
           { category: 'Lab', name: 'Serum Creatinine', value: '1.8 mg/dL' }
@@ -192,23 +195,29 @@ function App() {
     setIsDocViewerOpen(true);
   };
 
-  // If not authenticated and accessing private clinical routes, render login with Navbar
-  if (!isAuthenticated && currentTab !== 'landing') {
+  // If user clicks Login or is unauthenticated and tries to access private routes
+  if (currentTab === 'login' || (!isAuthenticated && currentTab !== 'landing')) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans antialiased">
+      <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans antialiased flex flex-col justify-between">
         <Navbar
-          currentTab={currentTab}
+          currentTab="login"
           setCurrentTab={setCurrentTab}
           user={userSession}
+          isAuthenticated={isAuthenticated}
           onLogout={handleLogout}
           language={language}
           setLanguage={setLanguage}
-          onNewReviewClick={() => setCurrentTab('new_review')}
+          onNewReviewClick={() => setCurrentTab('login')}
         />
-        <LoginScreen 
-          onLogin={handleLogin} 
-          onBackToShowcase={() => setCurrentTab('landing')} 
-        />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+          <LoginScreen 
+            onLogin={handleLogin} 
+            onBackToShowcase={() => setCurrentTab('landing')} 
+          />
+        </main>
+        <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-400">
+          DIYA · Clinical Antimicrobial Decision Support · Hospital Security Gateway
+        </footer>
       </div>
     );
   }
@@ -216,153 +225,154 @@ function App() {
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans antialiased flex flex-col justify-between selection:bg-slate-200 selection:text-slate-900">
       <div>
-        {/* Upper Navigation Bar: Always present across all views */}
+        {/* Navigation Bar: Reflects authentication status & locks tabs on landing */}
         <Navbar
           currentTab={currentTab}
           setCurrentTab={setCurrentTab}
           user={userSession}
+          isAuthenticated={isAuthenticated}
           onLogout={handleLogout}
           language={language}
           setLanguage={setLanguage}
           onNewReviewClick={() => setCurrentTab('new_review')}
         />
 
-        {/* VIEW 0: Public Showcase Landing Page (Strict Light Theme, Liquid Glassmorphism) */}
+        {/* VIEW 0: Public Landing Page Gate (Strict Entry, No Bypass to private pages) */}
         {currentTab === 'landing' && (
           <ShowcaseLandingPage
             onLaunchPortal={() => {
               if (!isAuthenticated) {
-                setIsAuthenticated(true);
-                setUserSession({
-                  hospital: 'St. Jude Memorial Hospital - Infectious Diseases & AMS',
-                  email: 'dr.sharma@hospital.org',
-                  role: 'Clinical Pharmacist'
-                });
+                setCurrentTab('login');
+              } else {
+                setCurrentTab('dashboard');
               }
-              setCurrentTab('dashboard');
             }}
             onSelectCase={(caseKey) => {
               if (!isAuthenticated) {
-                setIsAuthenticated(true);
-                setUserSession({
-                  hospital: 'St. Jude Memorial Hospital - Infectious Diseases & AMS',
-                  email: 'dr.sharma@hospital.org',
-                  role: 'Clinical Pharmacist'
-                });
+                setCurrentTab('login');
+              } else {
+                handleSelectCase(caseKey);
               }
-              handleSelectCase(caseKey);
             }}
             language={language}
             setLanguage={setLanguage}
           />
         )}
 
-        {/* CLINICAL PORTAL VIEWS */}
-        {currentTab !== 'landing' && (
+        {/* CLINICAL PORTAL VIEWS: ACCESSIBLE ONCE AUTHENTICATED */}
+        {isAuthenticated && currentTab !== 'landing' && (
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           
-          {/* VIEW 1: Main Dashboard */}
-          {currentTab === 'dashboard' && (
-            <MainDashboard
-              onStartNewReview={() => setCurrentTab('new_review')}
-              onSelectCase={handleSelectCase}
-              language={language}
-            />
-          )}
+            {/* VIEW 1: Main Dashboard */}
+            {currentTab === 'dashboard' && (
+              <MainDashboard
+                onStartNewReview={() => setCurrentTab('new_review')}
+                onSelectCase={handleSelectCase}
+                language={language}
+              />
+            )}
 
-          {/* VIEW 2: Start a Patient Review (Upload Screen) */}
-          {currentTab === 'new_review' && (
-            <NewReviewScreen
-              onAnalyze={handleAnalyzeUpload}
-              isAnalyzing={isAnalyzingModalOpen}
-              onBack={() => setCurrentTab('dashboard')}
-              language={language}
-            />
-          )}
+            {/* VIEW 2: Start a Patient Review (Upload Screen with Gemini OCR) */}
+            {currentTab === 'new_review' && (
+              <NewReviewScreen
+                onAnalyze={handleAnalyzeUpload}
+                isAnalyzing={isAnalyzingModalOpen}
+                onBack={() => setCurrentTab('dashboard')}
+                language={language}
+              />
+            )}
 
-          {/* VIEW 3: Clinical Review Dossier (Patient Snapshot + Main Output) */}
-          {currentTab === 'review' && (
-            <div className="space-y-6 text-left">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-                <button
-                  onClick={() => setCurrentTab('dashboard')}
-                  className="inline-flex items-center space-x-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>Return to Clinical Reviews</span>
-                </button>
-
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-slate-500">Active Case:</span>
-                  <span className="text-xs font-mono font-bold text-slate-900">
-                    {activePatientCase.patient_profile?.patient_alias || 'PT-1042'}
-                  </span>
-                  <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                    Decision Support Ready
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                {/* Left Column: Patient Overview, Snapshot & Microbiology (5 Cols) */}
-                <div className="lg:col-span-5 space-y-6">
-                  <PatientSummaryPanel
-                    profile={activePatientCase.patient_profile}
-                    language={language}
-                    onSelectFact={(cat, doc, snip) => handleOpenDocViewer(doc, snip)}
-                  />
-
+            {/* VIEW 3: Clinical Review Dossier (Patient Snapshot + Main Output) */}
+            {currentTab === 'review' && (
+              <div className="space-y-6 text-left">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-4">
                   <button
-                    onClick={() => handleOpenDocViewer('Blood_Culture_Report.pdf', 'Escherichia coli isolated from blood culture. Ceftriaxone: Susceptible.')}
-                    className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 text-slate-700 rounded-xl border border-slate-200 text-xs font-semibold shadow-2xs flex items-center justify-center space-x-2 transition-colors cursor-pointer"
+                    onClick={() => setCurrentTab('dashboard')}
+                    className="inline-flex items-center space-x-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
                   >
-                    <Eye className="w-4 h-4 text-emerald-600" />
-                    <span>Open Grounding Document Viewer</span>
+                    <ArrowLeft className="w-4 h-4" />
+                    <span>Return to Dashboard</span>
                   </button>
+
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-slate-500">Active Case:</span>
+                    <span className="text-xs font-mono font-bold text-slate-900">
+                      {activePatientCase.patient_profile?.patient_alias || 'PT-1042'}
+                    </span>
+                    <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      Decision Support Ready
+                    </span>
+                  </div>
                 </div>
 
-                {/* Right Column: Main Decision Support Output (7 Cols) */}
-                <div className="lg:col-span-7">
-                  <ClinicalDecisionOutput
-                    analysisData={activePatientCase}
-                    onOpenDocumentViewer={(doc, snip) => handleOpenDocViewer(doc, snip)}
-                    onExportReport={() => setCurrentTab('export')}
-                    language={language}
-                  />
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                  {/* Left Column: Patient Overview, Snapshot & Microbiology (5 Cols) */}
+                  <div className="lg:col-span-5 space-y-6">
+                    <PatientSummaryPanel
+                      profile={activePatientCase.patient_profile}
+                      language={language}
+                      onSelectFact={(cat, doc, snip) => handleOpenDocViewer(doc, snip)}
+                    />
+
+                    <button
+                      onClick={() => handleOpenDocViewer('Blood_Culture_Report.pdf', 'Escherichia coli isolated from blood culture. Ceftriaxone: Susceptible.')}
+                      className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 text-slate-700 rounded-xl border border-slate-200 text-xs font-semibold shadow-2xs flex items-center justify-center space-x-2 transition-colors cursor-pointer"
+                    >
+                      <Eye className="w-4 h-4 text-emerald-600" />
+                      <span>Open Grounding Document Viewer</span>
+                    </button>
+                  </div>
+
+                  {/* Right Column: Main Decision Support Output (7 Cols) */}
+                  <div className="lg:col-span-7">
+                    <ClinicalDecisionOutput
+                      analysisData={activePatientCase}
+                      onOpenDocumentViewer={(doc, snip) => handleOpenDocViewer(doc, snip)}
+                      onExportReport={() => setCurrentTab('export')}
+                      language={language}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* VIEW 4: Export Clinical Review Brief */}
-          {currentTab === 'export' && (
-            <ExportReviewCard
-              analysisData={activePatientCase}
-              onBack={() => setCurrentTab('review')}
-              language={language}
-            />
-          )}
+            {/* VIEW 4: Export Clinical Review Brief */}
+            {currentTab === 'export' && (
+              <ExportReviewCard
+                analysisData={activePatientCase}
+                onBack={() => setCurrentTab('review')}
+                language={language}
+              />
+            )}
 
-          {/* VIEW 5: Patients Inpatient Queue */}
-          {currentTab === 'patients' && (
-            <PatientsListPage
-              onSelectPatient={handleSelectCase}
-            />
-          )}
+            {/* VIEW 5: Patients Inpatient Queue (Supabase connected) */}
+            {currentTab === 'patients' && (
+              <PatientsListPage
+                onSelectPatient={handleSelectCase}
+              />
+            )}
 
-          {/* VIEW 6: Guidelines Evidence Library */}
-          {currentTab === 'guidelines' && (
-            <GuidelinesPage />
-          )}
+            {/* VIEW 6: Prescription History & Timeline (Supabase connected) */}
+            {currentTab === 'prescriptions' && (
+              <PrescriptionHistoryPage
+                onSelectPatient={handleSelectCase}
+                language={language}
+              />
+            )}
 
-          {/* VIEW 7: Hospital Activity Timeline */}
-          {currentTab === 'activity' && (
-            <ActivityTimelinePage
-              onSelectCase={handleSelectCase}
-            />
-          )}
+            {/* VIEW 7: Guidelines Evidence Library */}
+            {currentTab === 'guidelines' && (
+              <GuidelinesPage />
+            )}
 
-        </main>
+            {/* VIEW 8: Hospital Activity Timeline */}
+            {currentTab === 'activity' && (
+              <ActivityTimelinePage
+                onSelectCase={handleSelectCase}
+              />
+            )}
+
+          </main>
         )}
       </div>
 
